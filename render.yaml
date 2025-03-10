@@ -2,7 +2,7 @@ services:
   - name: api
     type: web
     env: docker
-    repo: https://github.com/your-username/your-repo
+    repo: https://github.com/Engr-DAN-org/attendance-system-api
     branch: main
     dockerfilePath: ./Dockerfile
     envVars:
