@@ -1,0 +1,12 @@
+services:
+  - name: api
+    type: web
+    env: docker
+    repo: https://github.com/your-username/your-repo
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+    autoDeploy: true
+    pullRequestPreviewsEnabled: true
