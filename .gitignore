@@ -1,0 +1,51 @@
+
+# Frontend Ignores
+
+frontend
+# frontend/logs
+# frontend/*.log
+# frontend/npm-debug.log*
+# frontend/yarn-debug.log*
+# frontend/yarn-error.log*
+# frontend/pnpm-debug.log*
+# frontend/lerna-debug.log*
+
+# frontend/node_modules
+# frontend/dist
+# frontend/dist-ssr
+# frontend/*.local
+
+# # Editor directories and files
+# frontend/.vscode/*
+# frontend/!.vscode/extensions.json
+# frontend/.idea
+# frontend/.DS_Store
+# frontend/*.suo
+# frontend/*.ntvs*
+# frontend/*.njsproj
+# frontend/*.sln
+# frontend/*.sw?
+
+# # Ignore build and compiled files
+# /backend/bin/
+# /backend/obj/
+# /backend/out/
+
+# # Ignore user-specific and temporary files
+# /backend/.vs/
+# /backend/.vscode/
+# /backend/*.user
+# /backend/*.suo
+# /backend/*.swp
+# /backend/*.tmp
+# /backend/*.log
+# /backend/*.bak
+
+# # Ignore dependency caches (if applicable)
+# /backend/node_modules/
+# /backend/.nuget/
+
+# # Ignore environment and secrets (if any)
+# /backend/appsettings.local.json
+# /backend/secrets.json
+# /backend/.env

@@ -1,0 +1,70 @@
+# remove the `target` when in production
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: dev # 👈 Force using the dev stage (with SDK)
+    volumes:
+      - ./api:/app # Mount local code to enable hot reload
+      - /app/bin # Prevents unnecessary cache issues
+      - /app/obj # Prevents unnecessary cache issues
+    ports:
+      - "5182:5182"
+    env_file:
+      - ./api/.env # Load environment variables from .env file
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgres://pgadmin:dev@db:5432/attendance-system?sslmode=disable}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+    depends_on:
+      db:
+        condition: service_healthy # Ensures API starts only when DB is ready
+    command:
+      [
+        "dotnet",
+        "watch",
+        "run",
+        "--no-launch-profile",
+        "--urls",
+        "http://0.0.0.0:5182",
+      ]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev # 👈 Ensure dev stage is used
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevents conflicts with local dependencies
+    ports:
+      - "5173:5173" # Vite dev server
+      - "24678:24678" # HMR (Hot Module Replacement)
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:5182} # Configurable API URL
+    command: ["npm", "run", "dev", "--", "--host"]
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: pgadmin
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: attendance-system
+      POSTGRES_INITDB_ARGS: "--no-instructions"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pgadmin -d attendance-system"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

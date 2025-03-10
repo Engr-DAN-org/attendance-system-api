@@ -1,0 +1,13 @@
+bin/
+obj/
+Properties/*
+!Properties/launchSettings.json
+*.user
+*.csproj.user
+*.vs
+*.swp
+*.suo
+*.cache
+*.log
+appsettings.Development.json
+Dockerfile

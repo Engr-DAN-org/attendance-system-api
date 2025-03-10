@@ -1,0 +1,55 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.cache
+*.pdb
+
+# Logs & debugging
+logs/
+*.log
+*.nlog
+*.serilog
+*.trace
+
+# Environment variables & secrets
+.env
+.env.production
+secrets.json
+
+# Docker-related files
+docker-compose.override.yml
+*.pid
+
+# Dependency caches
+node_modules/
+packages/
+.nuget/
+*.nugetprops
+
+# IDE & editor settings
+*.vs/
+.idea/
+*.DS_Store
+
+# System files
+Thumbs.db
+ehthumbs.db
+
+# Hot reload artifacts (if needed)
+.dotnet-watch.log
+
+# Generated code
+GeneratedCode/
+
+# SQLite (if using local DB for testing)
+*.db
+*.sqlite
+*.sqlite3
