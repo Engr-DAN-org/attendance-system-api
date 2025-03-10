@@ -1,7 +1,7 @@
 using System;
 using api.Enums;
 
-namespace api.Models;
+namespace api.Models.Entities;
 
 public class Guardian
 {

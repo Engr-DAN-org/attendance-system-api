@@ -1,6 +1,6 @@
 using System;
 
-namespace api.Models;
+namespace api.Models.Entities;
 
 public class AttendanceRecord
 {

@@ -26,8 +26,8 @@ RUN dotnet restore
 # Copy the rest of the files
 COPY . .
 
-# Run with hot reload
-CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5182"]
+# Run with hot reload and automatic restart
+CMD ["dotnet", "watch", "run", "--no-hot-restart", "--accept-hot-reload", "--urls", "http://0.0.0.0:5182"]
 
 # ===========================
 # PRODUCTION STAGE (Optimized Build)

@@ -1,5 +1,5 @@
 using System;
-using api.Models;
+using api.Models.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

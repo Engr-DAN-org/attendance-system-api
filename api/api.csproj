@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Configs\" />
     <Folder Include="Middlewares\" />
+    <Folder Include="Models\Entities\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 </Project>

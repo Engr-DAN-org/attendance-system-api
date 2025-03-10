@@ -1,4 +1,5 @@
 using api.Data;
+using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Services;
 using api.Utils;
@@ -8,6 +9,15 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var env = builder.Environment;
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5182";
+
+// open the port for outside the Container
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port)); // Allow external access on the assigned port
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -20,9 +30,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+// Add services with dependency injection to the container.
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add controller service
+builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 
 // Add EmailService configuration
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -63,5 +90,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.Run();

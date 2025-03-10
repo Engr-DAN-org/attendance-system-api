@@ -2,7 +2,7 @@ using System;
 using api.Enums;
 using Microsoft.AspNetCore.Identity;
 
-namespace api.Models;
+namespace api.Models.Entities;
 
 public class User : IdentityUser
 {

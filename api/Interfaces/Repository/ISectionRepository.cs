@@ -1,5 +1,5 @@
 using System;
-using api.Models;
+using api.Models.Entities;
 
 namespace api.Interfaces.Repository;
 
