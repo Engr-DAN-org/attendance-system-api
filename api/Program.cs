@@ -1,6 +1,10 @@
 using api.Data;
+using api.Data.Seeders;
+using api.Enums;
+using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
+using api.Repositories;
 using api.Services;
 using api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +20,10 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5182";
 // open the port for outside the Container
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(int.Parse(port)); // Allow external access on the assigned port
+    // options.ListenAnyIP(int.Parse(port)); // Allow external access on the assigned port
+    options.ListenAnyIP(int.Parse(port));  // IPv4
+    // options.ListenLocalhost(int.Parse(port)); // Ensures localhost access
+    // options.Listen(System.Net.IPAddress.IPv6Any, int.Parse(port)); // IPv6
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -30,15 +37,29 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+builder.Services.AddOptions();
+
 // Add services with dependency injection to the container.
+builder.Services.AddScoped<ITwoFactorRepository, TwoFactorRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// ✅ Configure Brevo SMTP Email Service
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Add controller service
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
 
 builder.Services.AddCors(options =>
 {
@@ -53,10 +74,8 @@ builder.Services.AddCors(options =>
 
 // Add EmailService configuration
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddTransient<EmailService>();
 
 // Add Authentication and Authorization
-builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(static option =>
         {
@@ -71,14 +90,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
 
         });
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RequireTeacherOrAdmin", policy =>
+        policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<DefaultUsersSeeder>>();
+    var seeder = new DefaultUsersSeeder(dbContext, logger);
+    await seeder.SeedAsync();
+}
+
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.Axios);
+
+    });
 }
 else
 {
@@ -91,6 +127,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.Run();

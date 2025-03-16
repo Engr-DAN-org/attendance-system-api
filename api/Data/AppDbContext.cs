@@ -7,8 +7,10 @@ namespace api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
+    public DbSet<Guardian> Guardians { get; set; }
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Section> Sections { get; set; }
+    public DbSet<TwoFactorAuth> TwoFactorAuths { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +75,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .WithMany(s => s.Students)
             .HasForeignKey(u => u.SectionId)
             .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique(); // Ensures only users have unique emails
+
+        modelBuilder.Entity<TwoFactorAuth>()
+            .HasIndex(t => t.Email)
+            .IsUnique(); // Ensures only one active 2FA code per user
     }
 
 }

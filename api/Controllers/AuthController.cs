@@ -13,31 +13,20 @@ namespace api.Controllers
     {
         private readonly IAuthService _authService = authService;
 
-
-        // public async Task<IActionResult> RegisterStudent([FromBody] RegisterStudentDTO registerStudentDTO)
-        // {
-        //     var result = await _authService.Register(registerDTO);
-        //     if (result == null)
-        //     {
-        //         return BadRequest(new { message = "Email is already taken." });
-        //     }
-        //     return Ok(result);
-        // }
-
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDTO loginDTO)
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            return Ok(new { message = "Login successful", data = loginDTO });
+            var response = await _authService.LoginAsync(loginDTO);
+            return Ok(response);
         }
 
-        [HttpGet("me")]
-        // [Authorize]
-        public async Task<IActionResult> Me()
+
+        [HttpPost("verify-2fa")]
+        public async Task<IActionResult> Verify2FAuthAsync([FromBody] TwoFactorRequestDTO twoFactorRequestDTO)
         {
-            // var result = await _authService.Me();
-            var result = new { message = "Me" };
+            var result = await _authService.Verify2FAuthAsync(twoFactorRequestDTO);
+
             return Ok(result);
         }
-
     }
 }

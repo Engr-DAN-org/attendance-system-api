@@ -1,4 +1,5 @@
 using System;
+using api.Utils;
 namespace api.Models.Entities;
 
 public class ClassSession
@@ -23,10 +24,10 @@ public class ClassSession
 
 
     // The actual date and time when the session was started
-    public DateTime StartTime { get; set; } = DateTime.UtcNow;
+    public DateTime StartTime { get; set; } = DateTimeUtils.DateTimeNow();
     public DateTime? EndTime { get; set; }
 
     // Auto-set timestamps
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 }

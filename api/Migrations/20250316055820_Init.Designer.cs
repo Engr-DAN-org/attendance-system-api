@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250309145401_AddClassScheduleAndAttendanceUpdates")]
-    partial class AddClassScheduleAndAttendanceUpdates
+    [Migration("20250316055820_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,7 +157,7 @@ namespace api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("api.Models.AttendanceRecord", b =>
+            modelBuilder.Entity("api.Models.Entities.AttendanceRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -208,7 +208,7 @@ namespace api.Migrations
                     b.ToTable("AttendanceRecord");
                 });
 
-            modelBuilder.Entity("api.Models.ClassSchedule", b =>
+            modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -255,7 +255,52 @@ namespace api.Migrations
                     b.ToTable("ClassSchedule");
                 });
 
-            modelBuilder.Entity("api.Models.Guardian", b =>
+            modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassScheduleId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassScheduleId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("ClassSession");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.Guardian", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -300,10 +345,10 @@ namespace api.Migrations
                     b.HasIndex("StudentId")
                         .IsUnique();
 
-                    b.ToTable("Guardian");
+                    b.ToTable("Guardians");
                 });
 
-            modelBuilder.Entity("api.Models.Section", b =>
+            modelBuilder.Entity("api.Models.Entities.Section", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -338,7 +383,7 @@ namespace api.Migrations
                     b.ToTable("Sections");
                 });
 
-            modelBuilder.Entity("api.Models.Subject", b =>
+            modelBuilder.Entity("api.Models.Entities.Subject", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -362,7 +407,34 @@ namespace api.Migrations
                     b.ToTable("Subjects");
                 });
 
-            modelBuilder.Entity("api.Models.User", b =>
+            modelBuilder.Entity("api.Models.Entities.TwoFactorAuth", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Expiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("TwoFactorAuths");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -388,8 +460,8 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("GuardianId")
-                        .HasColumnType("text");
+                    b.Property<int?>("GuardianId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("IdNumber")
                         .IsRequired()
@@ -443,6 +515,9 @@ namespace api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -466,7 +541,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -475,7 +550,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -490,7 +565,7 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -499,22 +574,22 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("api.Models.AttendanceRecord", b =>
+            modelBuilder.Entity("api.Models.Entities.AttendanceRecord", b =>
                 {
-                    b.HasOne("api.Models.ClassSchedule", "ClassSchedule")
+                    b.HasOne("api.Models.Entities.ClassSchedule", "ClassSchedule")
                         .WithMany()
                         .HasForeignKey("ClassScheduleId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("api.Models.User", "Student")
+                    b.HasOne("api.Models.Entities.User", "Student")
                         .WithMany("AttendanceRecords")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -525,21 +600,21 @@ namespace api.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("api.Models.ClassSchedule", b =>
+            modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
                 {
-                    b.HasOne("api.Models.Section", "Section")
+                    b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("ClassSchedules")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Subject", "Subject")
+                    b.HasOne("api.Models.Entities.Subject", "Subject")
                         .WithMany("ClassSchedules")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.User", "Teacher")
+                    b.HasOne("api.Models.Entities.User", "Teacher")
                         .WithMany("ClassSchedules")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -551,20 +626,39 @@ namespace api.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("api.Models.Guardian", b =>
+            modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
                 {
-                    b.HasOne("api.Models.User", "Student")
+                    b.HasOne("api.Models.Entities.ClassSchedule", "ClassSchedule")
+                        .WithMany()
+                        .HasForeignKey("ClassScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Entities.User", "Teacher")
+                        .WithMany("ClassSessions")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClassSchedule");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.Guardian", b =>
+                {
+                    b.HasOne("api.Models.Entities.User", "Student")
                         .WithOne("Guardian")
-                        .HasForeignKey("api.Models.Guardian", "StudentId")
+                        .HasForeignKey("api.Models.Entities.Guardian", "StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("api.Models.Section", b =>
+            modelBuilder.Entity("api.Models.Entities.Section", b =>
                 {
-                    b.HasOne("api.Models.User", "Teacher")
+                    b.HasOne("api.Models.Entities.User", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -572,9 +666,9 @@ namespace api.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("api.Models.User", b =>
+            modelBuilder.Entity("api.Models.Entities.User", b =>
                 {
-                    b.HasOne("api.Models.Section", "Section")
+                    b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("Students")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -582,23 +676,25 @@ namespace api.Migrations
                     b.Navigation("Section");
                 });
 
-            modelBuilder.Entity("api.Models.Section", b =>
+            modelBuilder.Entity("api.Models.Entities.Section", b =>
                 {
                     b.Navigation("ClassSchedules");
 
                     b.Navigation("Students");
                 });
 
-            modelBuilder.Entity("api.Models.Subject", b =>
+            modelBuilder.Entity("api.Models.Entities.Subject", b =>
                 {
                     b.Navigation("ClassSchedules");
                 });
 
-            modelBuilder.Entity("api.Models.User", b =>
+            modelBuilder.Entity("api.Models.Entities.User", b =>
                 {
                     b.Navigation("AttendanceRecords");
 
                     b.Navigation("ClassSchedules");
+
+                    b.Navigation("ClassSessions");
 
                     b.Navigation("Guardian");
                 });

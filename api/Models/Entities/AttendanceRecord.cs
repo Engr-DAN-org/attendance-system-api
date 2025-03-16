@@ -1,4 +1,5 @@
 using System;
+using api.Utils;
 
 namespace api.Models.Entities;
 
@@ -11,7 +12,7 @@ public class AttendanceRecord
     public bool IsOverRidden() => CreatedAt != UpdatedAt;
 
     //  Date for date record
-    public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    public DateOnly Date { get; set; } = DateTimeUtils.DateNow();
 
     public required string StudentId { get; set; }
     public required User Student { get; set; }
@@ -24,7 +25,7 @@ public class AttendanceRecord
     public float? Distance { get; set; }
 
     public bool IsLate() => TimeIn > ClassSchedule.StartTime.AddMinutes(ClassSchedule.GracePeriod);
-    public TimeOnly TimeIn { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+    public TimeOnly TimeIn { get; set; } = DateTimeUtils.TimeNow();
     public TimeOnly? TimeOut { get; set; }
 
     public string StudentName => Student.FullName;
@@ -32,8 +33,8 @@ public class AttendanceRecord
     public string Section => ClassSchedule.Section.Name;
     public string Teacher => ClassSchedule.Teacher?.FullName ?? "N/A";
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 
     // ✅ Haversine formula to calculate distance in meters
     private static double HaversineDistance(double lat1, double lon1, double lat2, double lon2)

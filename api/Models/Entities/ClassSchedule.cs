@@ -1,4 +1,5 @@
 using System;
+using api.Utils;
 
 namespace api.Models.Entities;
 
@@ -15,6 +16,6 @@ public class ClassSchedule
     public required Section Section { get; set; }
     public required Subject Subject { get; set; }
     public User? Teacher { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 }

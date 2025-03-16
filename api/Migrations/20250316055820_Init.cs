@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddClassScheduleAndAttendanceUpdates : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,6 +39,21 @@ namespace api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Subjects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TwoFactorAuths",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    Expiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TwoFactorAuths", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -121,7 +136,7 @@ namespace api.Migrations
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     SectionId = table.Column<int>(type: "integer", nullable: true),
-                    GuardianId = table.Column<string>(type: "text", nullable: true),
+                    GuardianId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -163,7 +178,7 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Guardian",
+                name: "Guardians",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -180,9 +195,9 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Guardian", x => x.Id);
+                    table.PrimaryKey("PK_Guardians", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Guardian_AspNetUsers_StudentId",
+                        name: "FK_Guardians_AspNetUsers_StudentId",
                         column: x => x.StudentId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -287,6 +302,39 @@ namespace api.Migrations
                         onDelete: ReferentialAction.SetNull);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ClassSession",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ClassScheduleId = table.Column<int>(type: "integer", nullable: false),
+                    TeacherId = table.Column<string>(type: "text", nullable: false),
+                    Location = table.Column<string>(type: "text", nullable: true),
+                    Latitude = table.Column<double>(type: "double precision", nullable: true),
+                    Longitude = table.Column<double>(type: "double precision", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClassSession", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClassSession_AspNetUsers_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClassSession_ClassSchedule_ClassScheduleId",
+                        column: x => x.ClassScheduleId,
+                        principalTable: "ClassSchedule",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -317,6 +365,12 @@ namespace api.Migrations
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Email",
+                table: "AspNetUsers",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_SectionId",
@@ -355,8 +409,18 @@ namespace api.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Guardian_StudentId",
-                table: "Guardian",
+                name: "IX_ClassSession_ClassScheduleId",
+                table: "ClassSession",
+                column: "ClassScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassSession_TeacherId",
+                table: "ClassSession",
+                column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Guardians_StudentId",
+                table: "Guardians",
                 column: "StudentId",
                 unique: true);
 
@@ -364,6 +428,12 @@ namespace api.Migrations
                 name: "IX_Sections_TeacherId",
                 table: "Sections",
                 column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TwoFactorAuths_Email",
+                table: "TwoFactorAuths",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserClaims_AspNetUsers_UserId",
@@ -424,7 +494,13 @@ namespace api.Migrations
                 name: "AttendanceRecord");
 
             migrationBuilder.DropTable(
-                name: "Guardian");
+                name: "ClassSession");
+
+            migrationBuilder.DropTable(
+                name: "Guardians");
+
+            migrationBuilder.DropTable(
+                name: "TwoFactorAuths");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -1,5 +1,6 @@
 using System;
 using api.Enums;
+using api.Utils;
 
 namespace api.Models.Entities;
 
@@ -15,6 +16,6 @@ public class Guardian
     public required string Address { get; set; }
     public required User Student { get; set; }
     public StudentGuardianRelationship Relationship { get; set; } = StudentGuardianRelationship.Parent;
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 }

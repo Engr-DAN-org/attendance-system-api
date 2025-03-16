@@ -2,6 +2,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using api.Models.Entities;
 using Microsoft.IdentityModel.Tokens;
 
 namespace api.Utils;
@@ -9,20 +10,20 @@ namespace api.Utils;
 public class TokenGenerator
 {
 
-    public string GenerateAuthToken(Guid userId, string email, string role)
+    public string GenerateAuthToken(User user)
     {
         // This class is responsible for generating JWT tokens
         var tokenHandler = new JwtSecurityTokenHandler();
         // This key should be stored in a secure place and should not be hardcoded
-        var key = this.GetSecretKey();
+        var key = GetSecretKey();
 
         // Claims are the data that will be stored in the token
         var claims = new List<Claim>
     {
         new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new(JwtRegisteredClaimNames.Email, email),
-        new(JwtRegisteredClaimNames.Sub, userId.ToString()),
-        new(ClaimTypes.Role, role)
+        new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+        new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new(ClaimTypes.Role, user.Role)
     };
 
         // The token will expire in 1 hour
@@ -30,7 +31,7 @@ public class TokenGenerator
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(1),
+            Expires = DateTimeUtils.OneHourAfter(),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
