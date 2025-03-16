@@ -12,4 +12,8 @@ public interface ISectionRepository
     public Task<Section> CreateSectionAsync(Section section);
     public Task<Section> DeleteSectionAsync(string id);
 
+    Task BeginTransactionAsync();
+    Task CommitTransactionAsync();
+    Task RollbackTransactionAsync();
+
 }

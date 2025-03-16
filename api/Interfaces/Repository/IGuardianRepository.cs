@@ -6,8 +6,8 @@ namespace api.Interfaces.Repository;
 
 public interface IGuardianRepository
 {
-    public Task<Guardian> CreateGuardianAsync(Guid studentId, CreateGuardianDTO guardian);
-    public Task<Guardian?> GetGuardianByStudentIdAsync(Guid studentId);
-    public Task<bool> UpdateGuardianAsync(Guid studentId, UpdateGuardianDTO guardian);
-    public Task<bool> DeleteGuardianAsync(Guid studentId);
+    public Task<Guardian> CreateGuardianAsync(User student, CreateGuardianDTO guardian);
+    public Task<Guardian?> GetGuardianByStudentIdAsync(string studentId);
+    public Task<Guardian> UpdateGuardianAsync(string studentId, UpdateGuardianDTO guardian);
+    public Task<bool> DeleteGuardianAsync(string studentId);
 }

@@ -26,7 +26,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
     public async Task<TwoFactorPromptDTO> LoginAsync(LoginDTO loginDTO)
     {
-        var user = await _userRepository.GetUserByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
+        var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
         if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
             return new TwoFactorPromptDTO { Success = false, };
 
@@ -45,10 +45,10 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         try
         {
             var twoFactorEntry = await _twoFactorRepository.FindByEmailAsync(twoFactorRequestDTO.Email);
-            var user = await _userRepository.GetUserByEmailOrIdNoAsync(twoFactorRequestDTO.Email);
+            var user = await _userRepository.FindByEmailOrIdNoAsync(twoFactorRequestDTO.Email);
 
             if (twoFactorEntry == null || user == null)
-                return new AuthResponseDTO { StatusCode = HttpStatusCode.NotFound, Message = "User with the email not found." };
+                return new AuthResponseDTO { StatusCode = HttpStatusCode.Gone, Message = "Cannot Proceed, Please Try Again Later." };
             if (twoFactorEntry.Code != twoFactorRequestDTO.Code)
                 return new AuthResponseDTO { StatusCode = HttpStatusCode.Unauthorized, Message = "Invalid OTP." };
             if (twoFactorEntry.IsExpired)

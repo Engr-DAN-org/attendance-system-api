@@ -12,34 +12,27 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<Guardian> CreateGuardianAsync(Guid studentId, CreateGuardianDTO guardian)
+    public async Task<Guardian> CreateGuardianAsync(User student, CreateGuardianDTO createGuardianDTO)
     {
-        var student = await _context.Users
-            .FirstOrDefaultAsync(u => u.Id == studentId.ToString())
-            ?? throw new NotFoundException("Student");
-
-        var newGuardian = new Guardian
+        var guardian = _context.Guardians.Add(new Guardian
         {
             StudentId = student.Id,
-            Address = guardian.Address,
+            Address = createGuardianDTO.Address,
             Student = student,
-            FirstName = guardian.FirstName,
-            LastName = guardian.LastName,
-            Email = guardian.Email,
-            ContactNumber = guardian.ContactNumber,
-            Relationship = guardian.Relationship
-        };
-
-        _context.Guardians.Add(newGuardian);
+            FirstName = createGuardianDTO.FirstName,
+            LastName = createGuardianDTO.LastName,
+            Email = createGuardianDTO.Email,
+            ContactNumber = createGuardianDTO.ContactNumber,
+            Relationship = createGuardianDTO.Relationship
+        });
         await _context.SaveChangesAsync(); // Ensure the guardian is saved
-
-        return newGuardian;
+        return guardian.Entity;
     }
 
 
-    public async Task<bool> DeleteGuardianAsync(Guid studentId)
+    public async Task<bool> DeleteGuardianAsync(string studentId)
     {
-        var guardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId.ToString());
+        var guardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId);
 
         if (guardian != null)
         {
@@ -50,14 +43,14 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
         return true;
     }
 
-    public async Task<Guardian?> GetGuardianByStudentIdAsync(Guid studentId)
+    public async Task<Guardian?> GetGuardianByStudentIdAsync(string studentId)
     {
-        return await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId.ToString());
+        return await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId);
     }
 
-    public async Task<bool> UpdateGuardianAsync(Guid studentId, UpdateGuardianDTO guardian)
+    public async Task<Guardian> UpdateGuardianAsync(string studentId, UpdateGuardianDTO guardian)
     {
-        var existingGuardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId.ToString()) ?? throw new NotFoundException("Guardian");
+        var existingGuardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId) ?? throw new NotFoundException("Guardian");
 
         existingGuardian.FirstName = guardian.FirstName;
         existingGuardian.LastName = guardian.LastName;
@@ -69,6 +62,6 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
         _context.Guardians.Update(existingGuardian);
         await _context.SaveChangesAsync();
 
-        return true;
+        return existingGuardian;
     }
 }

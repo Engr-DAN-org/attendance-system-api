@@ -1,3 +1,4 @@
+using api.Authorization;
 using api.Data;
 using api.Data.Seeders;
 using api.Enums;
@@ -39,15 +40,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddOptions();
 
-// Add services with dependency injection to the container.
+// Repository Dependency Injection
+// builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
+builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
+// builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+// builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ITwoFactorRepository, TwoFactorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
+
+// Services Dependency Injection
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 // ✅ Configure Brevo SMTP Email Service
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SmtpSettings"));
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 // Add services to the container.
@@ -92,7 +101,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         });
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("RequireTeacherOrAdmin", policy =>
-        policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()));
+        policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()))
+    .AddPolicy("RequireAdmin", policy =>
+        policy.RequireRole(UserRole.Admin.ToString()))
+    .AddPolicy("RequireSelfOrTeacherOrAdmin", policy =>
+        policy.Requirements.Add(new RequireSelfOrRoleRequirement()))
+    .AddPolicy("RequireSelfOrAdmin", policy =>
+        policy.Requirements.Add(new RequireSelfOrAdminRequirement()));
 
 var app = builder.Build();
 

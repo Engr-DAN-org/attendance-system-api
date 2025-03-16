@@ -11,7 +11,7 @@ namespace api.Models.DTOs
         public string Name { get; set; } = "";
         public string Email { get; set; } = "";
         public string IdNumber { get; set; } = "";
-        public UserRole UserRole { get; set; } = UserRole.Teacher;
+        public int Page { get; set; } = 1;
     }
 
     public class StudentQueryDTO
@@ -19,11 +19,9 @@ namespace api.Models.DTOs
         public string Name { get; set; } = "";
         public string IdNumber { get; set; } = "";
         public int? YearLevel { get; set; }
-
+        public string Email { get; set; } = "";
         public string SectionId { get; set; } = "";
         public string GuardianName = "";
-        public UserRole UserRole { get; set; } = UserRole.Student;
-        public int Page = 1;
-        public int PageSize = 10;
+        public int Page { get; set; } = 1;
     }
 }
