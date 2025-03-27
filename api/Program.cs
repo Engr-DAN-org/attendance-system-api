@@ -43,7 +43,7 @@ builder.Services.AddOptions();
 // Repository Dependency Injection
 // builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
 builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
-// builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 // builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ITwoFactorRepository, TwoFactorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -53,6 +53,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 // ✅ Configure Brevo SMTP Email Service
@@ -104,10 +105,10 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()))
     .AddPolicy("RequireAdmin", policy =>
         policy.RequireRole(UserRole.Admin.ToString()))
-    .AddPolicy("RequireSelfOrTeacherOrAdmin", policy =>
-        policy.Requirements.Add(new RequireSelfOrRoleRequirement()))
-    .AddPolicy("RequireSelfOrAdmin", policy =>
-        policy.Requirements.Add(new RequireSelfOrAdminRequirement()));
+    .AddPolicy("RequireOwnerOrRole", policy =>
+        policy.Requirements.Add(new OwnerOrRoleRequirement()))
+    .AddPolicy("RequireOwnerOrAdmin", policy =>
+        policy.Requirements.Add(new OwnerOrAdminRequirement()));
 
 var app = builder.Build();
 

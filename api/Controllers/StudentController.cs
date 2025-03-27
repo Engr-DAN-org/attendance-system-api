@@ -27,7 +27,52 @@ namespace api.Controllers
             {
                 return StatusCode(500, e.Message);
             }
-
         }
+
+        [HttpPost("create")]
+        // [Authorize(Policy = "RequireTeacherOrAdmin")]
+        public async Task<IActionResult> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
+        {
+            try
+            {
+                var student = await _studentService.CreateStudentAsync(createStudentDTO);
+                return CreatedAtAction(nameof(student), new { idNumber = student.IdNumber }, student);
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPut("update")]
+        [Authorize(Policy = "RequireAdmin")]
+        public async Task<IActionResult> UpdateStudent([FromBody] UpdateStudentDTO updateStudentDTO)
+        {
+            try
+            {
+                var student = await _studentService.UpdateStudentAsync(updateStudentDTO);
+                return Ok(student);
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpDelete("delete/{id}")]
+        [Authorize(Policy = "RequireAdmin")]
+        public async Task<IActionResult> DeleteStudent(string id)
+        {
+            try
+            {
+                await _studentService.DeleteStudentAsync(id);
+                return Ok();
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
     }
 }

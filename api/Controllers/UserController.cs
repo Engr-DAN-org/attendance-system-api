@@ -13,7 +13,7 @@ namespace api.Controllers
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 
-        [Authorize(Policy = "RequireSelfOrTeacherOrAdmin")]
+        [Authorize(Policy = "RequireOwnerOrRole")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {

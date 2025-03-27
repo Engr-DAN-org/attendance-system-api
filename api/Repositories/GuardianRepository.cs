@@ -25,6 +25,8 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
             ContactNumber = createGuardianDTO.ContactNumber,
             Relationship = createGuardianDTO.Relationship
         });
+        student.GuardianId = guardian.Entity.Id;
+        student.Guardian = guardian.Entity;
         await _context.SaveChangesAsync(); // Ensure the guardian is saved
         return guardian.Entity;
     }
@@ -48,18 +50,26 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
         return await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId);
     }
 
-    public async Task<Guardian> UpdateGuardianAsync(string studentId, UpdateGuardianDTO guardian)
+    public async Task<Guardian> UpdateGuardianAsync(User student, CreateGuardianDTO guardian)
     {
-        var existingGuardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == studentId) ?? throw new NotFoundException("Guardian");
+        var existingGuardian = await _context.Guardians.FirstOrDefaultAsync(g => g.StudentId == student.Id);
 
-        existingGuardian.FirstName = guardian.FirstName;
-        existingGuardian.LastName = guardian.LastName;
-        existingGuardian.Email = guardian.Email;
-        existingGuardian.ContactNumber = guardian.ContactNumber;
-        existingGuardian.Relationship = guardian.Relationship;
-        existingGuardian.Address = guardian.Address;
+        if (existingGuardian == null)
+        {
+            existingGuardian = await CreateGuardianAsync(student, guardian);
+        }
+        else
+        {
+            existingGuardian.FirstName = guardian.FirstName;
+            existingGuardian.LastName = guardian.LastName;
+            existingGuardian.Email = guardian.Email;
+            existingGuardian.ContactNumber = guardian.ContactNumber;
+            existingGuardian.Relationship = (Enums.StudentGuardianRelationship)guardian.Relationship;
+            existingGuardian.Address = guardian.Address;
 
-        _context.Guardians.Update(existingGuardian);
+            _context.Guardians.Update(existingGuardian);
+        }
+
         await _context.SaveChangesAsync();
 
         return existingGuardian;

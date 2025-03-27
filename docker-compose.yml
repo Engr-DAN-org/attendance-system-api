@@ -41,8 +41,6 @@ services:
     ports:
       - "5173:5173" # Vite dev server
       - "24678:24678" # HMR (Hot Module Replacement)
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:5182} # Configurable API URL
     command: ["npm", "run", "dev", "--", "--host"]
     depends_on:
       - api

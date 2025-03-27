@@ -8,6 +8,6 @@ public interface IGuardianRepository
 {
     public Task<Guardian> CreateGuardianAsync(User student, CreateGuardianDTO guardian);
     public Task<Guardian?> GetGuardianByStudentIdAsync(string studentId);
-    public Task<Guardian> UpdateGuardianAsync(string studentId, UpdateGuardianDTO guardian);
+    public Task<Guardian> UpdateGuardianAsync(User student, CreateGuardianDTO guardian);
     public Task<bool> DeleteGuardianAsync(string studentId);
 }

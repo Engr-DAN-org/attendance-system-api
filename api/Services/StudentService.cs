@@ -53,6 +53,7 @@ namespace api.Services
             {
                 await _userRepository.DeleteUserAsync(id);
                 await _guardianRepository.DeleteGuardianAsync(id);
+
                 await _userRepository.CommitTransactionAsync();
             }
             catch (Exception)
@@ -98,18 +99,20 @@ namespace api.Services
             await _userRepository.BeginTransactionAsync();
             try
             {
+                var student = await _userRepository.FindBySchoolIdNoAsync(updateStudentDTO.IdNumber) ?? throw new Exception("Student not found");
+
                 var user = await _userRepository.UpdateUserAsync(new User
                 {
+                    Id = student.Id,
                     IdNumber = updateStudentDTO.IdNumber,
                     FirstName = updateStudentDTO.FirstName,
                     LastName = updateStudentDTO.LastName,
                     Email = updateStudentDTO.Email,
                     SectionId = updateStudentDTO.SectionId
                 });
-
                 if (updateStudentDTO.Guardian != null)
                 {
-                    var guardian = await _guardianRepository.UpdateGuardianAsync(user.Id, updateStudentDTO.Guardian);
+                    var guardian = await _guardianRepository.UpdateGuardianAsync(user, updateStudentDTO.Guardian);
                 }
 
                 await _userRepository.CommitTransactionAsync();

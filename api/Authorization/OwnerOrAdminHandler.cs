@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace api.Authorization;
 
-public class RequireSelfOrRoleHandler : AuthorizationHandler<RequireSelfOrRoleRequirement>
+public class RequireSelfOrAdminHandler : AuthorizationHandler<OwnerOrAdminRequirement>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RequireSelfOrRoleRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, OwnerOrAdminRequirement requirement)
     {
         // Get the user's role
         var roles = context.User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
         var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier); // Use ClaimTypes.NameIdentifier for "sub"
 
-        if (roles.Contains(UserRole.Teacher.ToString()) || roles.Contains(UserRole.Admin.ToString()))
+        if (roles.Contains(UserRole.Admin.ToString()))
         {
-            // User is a Teacher or Admin -> Grant access
+            // User is Admin -> Grant access
             context.Succeed(requirement);
             return Task.CompletedTask;
         }

@@ -34,7 +34,7 @@ namespace api.Models.DTOs
         public required string LastName { get; set; }
         public required int YearLevel { get; set; }
         public required int SectionId { get; set; }
-        public UpdateGuardianDTO? Guardian { get; set; }
+        public required CreateGuardianDTO Guardian { get; set; }
     }
     public class DeleteStudentDTO
     {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace api.Authorization;
 
-public class RequireSelfOrAdminRequirement : IAuthorizationRequirement
+public class OwnerOrAdminRequirement : IAuthorizationRequirement
 {
 
 }

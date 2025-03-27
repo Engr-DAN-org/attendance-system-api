@@ -53,6 +53,12 @@ public class UserRepository(AppDbContext context) : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == id);
     }
 
+
+    public async Task<User?> FindBySchoolIdNoAsync(string schoolId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == schoolId);
+    }
+
     public async Task<List<T>> GetUsersAsync<T>(
         UserRole userRole,
         int page,
@@ -75,18 +81,11 @@ public class UserRepository(AppDbContext context) : IUserRepository
     }
 
 
-    public Task<User> UpdateUserAsync(User user)
+    public async Task<User> UpdateUserAsync(User user)
     {
-        throw new NotImplementedException();
-        // var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.Id) ?? throw new NotFoundException("User");
-        // existingUser.FirstName = user.FirstName;
-        // existingUser.LastName = user.LastName;
-        // existingUser.Email = user.Email;
-        // existingUser.IdNumber = user.IdNumber;
-        // existingUser.UserRole = user.UserRole;
-        // existingUser.SectionId = user.SectionId;
-        // await _context.SaveChangesAsync();
-        // return existingUser;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+        return user;
     }
 
     public async Task BeginTransactionAsync()
@@ -103,6 +102,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     {
         await _context.Database.RollbackTransactionAsync();
     }
+
     // private readonly IGuardianRepository _guardianRepository = guardianRepository ?? throw new ArgumentNullException(nameof(guardianRepository));
     // public async Task<GetStudentDTO> CreateStudentAsync(CreateStudentDTO studentDTO)
     // {

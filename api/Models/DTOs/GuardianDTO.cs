@@ -12,6 +12,7 @@ public class CreateGuardianDTO
     public string? ContactNumber { get; set; }
     public required string Address { get; set; }
     public StudentGuardianRelationship Relationship { get; set; } = StudentGuardianRelationship.Parent;
+
 }
 
 public class UpdateGuardianDTO
