@@ -1,5 +1,6 @@
 using System.Net;
 using api.Data;
+using api.Enums;
 using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
@@ -24,11 +25,11 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         throw new NotImplementedException();
     }
 
-    public async Task<TwoFactorPromptDTO> LoginAsync(LoginDTO loginDTO)
+    public async Task<TwoFactorResponseDTO> LoginAsync(LoginDTO loginDTO)
     {
         var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
         if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
-            return new TwoFactorPromptDTO { Success = false, };
+            return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
 
         if (user.Email != null)
         {
@@ -36,7 +37,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
         }
 
-        return new TwoFactorPromptDTO { Email = user.Email };
+        return new TwoFactorResponseDTO { Email = user.Email };
     }
 
     public async Task<AuthResponseDTO> Verify2FAuthAsync(TwoFactorRequestDTO twoFactorRequestDTO)
@@ -48,11 +49,11 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             var user = await _userRepository.FindByEmailOrIdNoAsync(twoFactorRequestDTO.Email);
 
             if (twoFactorEntry == null || user == null)
-                return new AuthResponseDTO { StatusCode = HttpStatusCode.Gone, Message = "Cannot Proceed, Please Try Again Later." };
+                return new AuthResponseDTO { ResponseType = AuthResponseType.Error };
             if (twoFactorEntry.Code != twoFactorRequestDTO.Code)
-                return new AuthResponseDTO { StatusCode = HttpStatusCode.Unauthorized, Message = "Invalid OTP." };
+                return new AuthResponseDTO { ResponseType = AuthResponseType.InvalidOTP };
             if (twoFactorEntry.IsExpired)
-                return new AuthResponseDTO { StatusCode = HttpStatusCode.Gone, Message = "OTP has expired." };
+                return new AuthResponseDTO { ResponseType = AuthResponseType.ExpiredOTP };
 
             // Delete the 2FA code to prevent reuse
 
@@ -72,7 +73,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         catch (Exception)
         {
             await transaction.RollbackAsync();
-            return new AuthResponseDTO { StatusCode = HttpStatusCode.InternalServerError, Message = "Something Went Wrong." };
+            return new AuthResponseDTO { ResponseType = AuthResponseType.Error };
         }
     }
 

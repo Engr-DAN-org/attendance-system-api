@@ -1,3 +1,4 @@
+using api.Enums;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -20,10 +21,7 @@ namespace api.Controllers
             try
             {
                 var response = await _authService.LoginAsync(loginDTO);
-                if (response.Success)
-                    return Ok(response);
-
-                return Unauthorized(response);
+                return StatusCode(AuthResponseStatus.GetStatus(response.ResponseType), response);
             }
             catch (Exception e)
             {
@@ -38,9 +36,9 @@ namespace api.Controllers
         {
             try
             {
-                var result = await _authService.Verify2FAuthAsync(twoFactorRequestDTO);
+                var response = await _authService.Verify2FAuthAsync(twoFactorRequestDTO);
 
-                return StatusCode((int)result.StatusCode, result);
+                return StatusCode(AuthResponseStatus.GetStatus(response.ResponseType), response);
             }
             catch (Exception e)
             {
