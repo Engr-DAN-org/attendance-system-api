@@ -17,7 +17,7 @@ public static class DBUrlParser
         var builder = new NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
-            Port = uri.Port,
+            Port = uri.IsDefaultPort ? 5432 : uri.Port,
             Username = userInfo[0],
             Password = userInfo[1],
             Database = uri.LocalPath.TrimStart('/'),
