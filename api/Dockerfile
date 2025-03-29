@@ -41,6 +41,10 @@ FROM base AS build
 ARG BUILD_ENV=Production
 ENV ASPNETCORE_ENVIRONMENT=$BUILD_ENV
 
+# Install EF Core CLI tools
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
 # Copy project file & restore dependencies
 COPY *.csproj ./
 RUN dotnet restore
