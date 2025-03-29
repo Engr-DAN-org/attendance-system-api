@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using api.Enums;
+using api.Exceptions;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +45,30 @@ namespace api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(new EventId(101, "DatabaseError"), e, "2FA Verification Attempt Failed");
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return StatusCode(400, new { message = "User ID is missing or invalid." });
+
+                var response = await _authService.GetProfileAsync(userId);
+                return Ok(response);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Profile Attempt Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }

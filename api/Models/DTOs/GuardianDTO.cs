@@ -29,7 +29,7 @@ public class GetGuardianDTO(Guardian guardian)
 {
     public string FullName { get; set; } = $"{guardian.FirstName} {guardian.LastName}";
     public string Email { get; set; } = guardian.Email;
-    public string ContactNumber { get; set; } = guardian.ContactNumber;
+    public string? ContactNumber { get; set; } = guardian.ContactNumber;
     public string Address { get; set; } = guardian.Address;
     public StudentGuardianRelationship Relationship { get; set; } = guardian.Relationship;
 }

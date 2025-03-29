@@ -1,6 +1,7 @@
 using System.Net;
 using api.Data;
 using api.Enums;
+using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
@@ -93,5 +94,12 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
     public Task<string> VerifyEmailAsync(string email, string token)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<GetProfileDTO> GetProfileAsync(string userId)
+    {
+        var user = await _userRepository.FindByIdAsync(userId) ?? throw new NotFoundException("User");
+
+        return new GetProfileDTO(user);
     }
 }

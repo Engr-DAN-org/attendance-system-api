@@ -23,7 +23,8 @@ public class TokenGenerator
         new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
         new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-        new(ClaimTypes.Role, user.Role)
+        new(ClaimTypes.Role, user.Role),
+        new(ClaimTypes.NameIdentifier , user.Id.ToString()),
     };
 
         // The token will expire in 1 hour

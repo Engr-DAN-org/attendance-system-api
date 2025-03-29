@@ -7,6 +7,7 @@ public interface IAuthService
 {
     public Task<TwoFactorResponseDTO> LoginAsync(LoginDTO loginDTO);
     public Task<AuthResponseDTO> Verify2FAuthAsync(TwoFactorRequestDTO twoFactorRequestDTO);
+    public Task<GetProfileDTO> GetProfileAsync(string userId);
     public Task<string> ForgotPasswordAsync(string email);
     public Task<string> ResetPasswordAsync(string email, string token, string password);
     public Task<string> VerifyEmailAsync(string email, string token);

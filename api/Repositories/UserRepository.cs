@@ -50,7 +50,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
     public async Task<User?> FindByIdAsync(string id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == id);
+        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
 
 
