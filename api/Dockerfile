@@ -47,8 +47,6 @@ RUN dotnet restore
 
 # Copy all files & publish optimized build
 COPY . .
-# Execute the migration files & publish optimized build
-RUN dotnet-ef database update
 RUN dotnet publish -c Release -o /app/out
 
 # ===========================
@@ -63,5 +61,5 @@ COPY --from=build /app/out .
 # Expose port
 EXPOSE 5182
 
-# Run optimized app
-CMD ["dotnet", "api.dll"]
+# Run migrations at container startup
+ENTRYPOINT ["sh", "-c", "dotnet api.dll && dotnet-ef database update"]
