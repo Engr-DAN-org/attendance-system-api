@@ -61,5 +61,6 @@ COPY --from=build /app/out .
 # Expose port
 EXPOSE 5182
 
+# Run with the migration files 
 # Run optimized app
-CMD ["dotnet", "api.dll"]
+CMD ["sh", "-c", "dotnet-ef database update && dotnet api.dll"]
