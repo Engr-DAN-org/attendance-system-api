@@ -61,5 +61,6 @@ COPY --from=build /app/out .
 # Expose port
 EXPOSE 5182
 
-# Run migrations at container startup
-ENTRYPOINT ["sh", "-c", "dotnet api.dll && dotnet-ef database update"]
+# Run with the migration files 
+# Run optimized app
+CMD ["sh", "-c", "dotnet-ef database update && dotnet api.dll"]
