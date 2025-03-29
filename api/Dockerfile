@@ -47,6 +47,8 @@ RUN dotnet restore
 
 # Copy all files & publish optimized build
 COPY . .
+# Execute the migration files & publish optimized build
+RUN dotnet-ef database update
 RUN dotnet publish -c Release -o /app/out
 
 # ===========================
