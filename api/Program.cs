@@ -17,7 +17,7 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5182";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Default port if not set
 
 // open the port for outside the Container
 builder.WebHost.ConfigureKestrel(options =>
@@ -28,12 +28,17 @@ builder.WebHost.ConfigureKestrel(options =>
     // options.Listen(System.Net.IPAddress.IPv6Any, int.Parse(port)); // IPv6
 });
 
+// Debugging: Log the port being used
+Console.WriteLine($"Starting server on port {port}");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     // ✅ Parse the DATABASE_URL into a connection string
     var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     if (string.IsNullOrEmpty(dbUrl))
         throw new InvalidOperationException("DATABASE_URL environment variable is not set.");
+
+    Console.WriteLine($"DATABASE_URL is set to: {dbUrl}");
 
     var connectionString = DBUrlParser.ParseDatabaseUrl(dbUrl);
     options.UseNpgsql(connectionString);
