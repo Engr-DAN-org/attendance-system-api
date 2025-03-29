@@ -4,7 +4,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-      target: dev # 👈 Force using the dev stage (with SDK)
+      target: build # 👈 Force using the dev stage (with SDK)
     volumes:
       - ./api:/app # Mount local code to enable hot reload
       - /app/bin # Prevents unnecessary cache issues

@@ -18,6 +18,7 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 # Install EF Core CLI tools
 RUN dotnet tool install --global dotnet-ef
 ENV PATH="${PATH}:/root/.dotnet/tools"
+# ENV DATABASE_URL="postgresql://sas_db_user:ABAURFAlsHlcFfTsnHPbMmNJwKYeOfl8@dpg-cvju9ehr0fns739kb8g0-a/sas_db"
 
 # Copy project file & restore dependencies
 COPY *.csproj ./
@@ -27,7 +28,7 @@ RUN dotnet restore
 COPY . .
 
 # Run with the migration files
-RUN dotnet-ef database update
+# RUN dotnet-ef database update
 
 # Run with hot reload and automatic restart
 CMD ["dotnet", "watch", "run", "--no-hot-restart", "--accept-hot-reload", "--urls", "http://0.0.0.0:5182"]
