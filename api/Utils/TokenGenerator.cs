@@ -1,6 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using api.Models.Entities;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +46,7 @@ public class TokenGenerator
 
     public byte[] GetSecretKey()
     {
+        // string key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         string key = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? "SecretKeyShouldBeLongAndSecure";
 
         return Encoding.UTF8.GetBytes(key);

@@ -23,6 +23,7 @@ logs/
 .env
 .env.production
 secrets.json
+appsettings.Development.json
 
 # Docker-related files
 docker-compose.override.yml

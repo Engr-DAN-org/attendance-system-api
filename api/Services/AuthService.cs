@@ -28,17 +28,27 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
     public async Task<TwoFactorResponseDTO> LoginAsync(LoginDTO loginDTO)
     {
-        var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
-        if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
-            return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
-
-        if (user.Email != null)
+        try
         {
+            _context.Database.BeginTransaction();
+
+            var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
+            if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
+
+            if (string.IsNullOrEmpty(user.Email))
+                throw new ArgumentException("User Email required for Two-Factor Authentication is not set. Please contact the Administrator.");
+
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
             await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
-        }
 
-        return new TwoFactorResponseDTO { Email = user.Email };
+            return new TwoFactorResponseDTO { Email = user.Email };
+        }
+        catch (Exception)
+        {
+            _context.Database.RollbackTransaction();
+            throw;
+        }
     }
 
     public async Task<AuthResponseDTO> Verify2FAuthAsync(TwoFactorRequestDTO twoFactorRequestDTO)
