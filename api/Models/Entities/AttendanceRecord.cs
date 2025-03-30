@@ -25,6 +25,7 @@ public class AttendanceRecord
     public float? Distance { get; set; }
 
     public bool IsLate() => TimeIn > ClassSchedule.StartTime.AddMinutes(ClassSchedule.GracePeriod);
+    public DateTime ClockInRecord { get; set; } = DateTimeUtils.DateTimeNow();
     public TimeOnly TimeIn { get; set; } = DateTimeUtils.TimeNow();
     public TimeOnly? TimeOut { get; set; }
 
