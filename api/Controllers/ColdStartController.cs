@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-using api.Interfaces.Repository;
 using api.Interfaces.Service;
+using api.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -18,7 +17,7 @@ namespace api.Controllers
             try
             {
                 var adminName = await _adminService.GetFirstAdminName();
-                return Ok(new { testData = adminName });
+                return Ok(new { testData = adminName, date = DateTimeUtils.DateNow(), time = DateTimeUtils.TimeNow(), utc = DateTimeUtils.DateTimeNow() });
             }
             catch (Exception e)
             {
