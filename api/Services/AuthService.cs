@@ -30,7 +30,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
     {
         try
         {
-            _context.Database.BeginTransaction();
+            await _context.Database.BeginTransactionAsync();
 
             var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
             if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
@@ -42,11 +42,12 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
             await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
 
+            await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email };
         }
         catch (Exception)
         {
-            _context.Database.RollbackTransaction();
+            await _context.Database.RollbackTransactionAsync();
             throw;
         }
     }
