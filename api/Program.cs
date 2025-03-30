@@ -77,120 +77,121 @@ else
         option.Username = VariableParser.GetEnvString("SMTP_USERNAME");
         option.Password = VariableParser.GetEnvString("SMTP_PASSWORD");
     });
+}
 
-    // Add services to the container.
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
+// Add services to the container.
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
-    // Add controller service
-    builder.Services.AddControllers()
-        .AddNewtonsoftJson(options =>
-        {
-            options.SerializerSettings.Converters.Add(new StringEnumConverter());
-            options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-        });
-
-    builder.Services.AddCors(options =>
+// Add controller service
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
     {
-        options.AddDefaultPolicy(policy =>
-        {
-            if (env.IsDevelopment())
-            {
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            }
-            else
-            {
-                policy.WithOrigins("https://attendance-system-app-vpu1.onrender.com")
-                    .AllowCredentials()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            }
-        });
+        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+        options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
     });
 
-
-    // Add EmailService configuration
-    builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
-    // Add Authentication and Authorization
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(static option =>
-            {
-                option.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(new TokenGenerator().GetSecretKey()),
-                    ClockSkew = TimeSpan.Zero // Tokens expire exactly after 1 hour
-                };
-
-            });
-    builder.Services.AddAuthorizationBuilder()
-        .AddPolicy("RequireTeacherOrAdmin", policy =>
-            policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()))
-        .AddPolicy("RequireAdmin", policy =>
-            policy.RequireRole(UserRole.Admin.ToString()))
-        .AddPolicy("RequireOwnerOrRole", policy =>
-            policy.Requirements.Add(new OwnerOrRoleRequirement()))
-        .AddPolicy("RequireOwnerOrAdmin", policy =>
-            policy.Requirements.Add(new OwnerOrAdminRequirement()));
-
-    var app = builder.Build();
-
-    app.Use(async (context, next) =>
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
     {
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-
-        try
+        if (env.IsDevelopment())
         {
-            await next();
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "Unhandled exception occurred: {Message}", ex.Message);
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("An unexpected error occurred.");
+            policy.WithOrigins("https://attendance-system-app-vpu1.onrender.com")
+                .AllowCredentials()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         }
     });
+});
 
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await dbContext.Database.MigrateAsync();
+// Add EmailService configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<DefaultUsersSeeder>>();
-        var seeder = new DefaultUsersSeeder(dbContext, logger);
-        await seeder.SeedAsync();
-    }
-
-    app.UseCors();
-
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.MapOpenApi();
-        app.MapScalarApiReference(options =>
+// Add Authentication and Authorization
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(static option =>
         {
-            options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.Axios);
+            option.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(new TokenGenerator().GetSecretKey()),
+                ClockSkew = TimeSpan.Zero // Tokens expire exactly after 1 hour
+            };
 
         });
-    }
-    else
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RequireTeacherOrAdmin", policy =>
+        policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()))
+    .AddPolicy("RequireAdmin", policy =>
+        policy.RequireRole(UserRole.Admin.ToString()))
+    .AddPolicy("RequireOwnerOrRole", policy =>
+        policy.Requirements.Add(new OwnerOrRoleRequirement()))
+    .AddPolicy("RequireOwnerOrAdmin", policy =>
+        policy.Requirements.Add(new OwnerOrAdminRequirement()));
+
+var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+
+    try
     {
-        app.UseHttpsRedirection();
+        await next();
     }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Unhandled exception occurred: {Message}", ex.Message);
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An unexpected error occurred.");
+    }
+});
 
-    // use the Authentication and Authorization setup
-    app.UseAuthentication();
-    app.UseAuthorization();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    app.MapControllers();
+    await dbContext.Database.MigrateAsync();
+
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<DefaultUsersSeeder>>();
+    var seeder = new DefaultUsersSeeder(dbContext, logger);
+    await seeder.SeedAsync();
+}
+
+app.UseCors();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.Axios);
+
+    });
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
+// use the Authentication and Authorization setup
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 
-    app.Run();
+app.Run();
