@@ -85,9 +85,9 @@ builder.Services.AddControllers()
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.AllowAnyOrigin()
+        policy.WithOrigins("https://attendance-system-app-vpu1.onrender.com")
                 .AllowCredentials()
                 .AllowAnyMethod()
                 .AllowAnyHeader();
