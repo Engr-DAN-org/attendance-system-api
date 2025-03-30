@@ -10,6 +10,7 @@ namespace api.Models.DTOs
     public class GetProfileDTO(User user)
     {
         public string IdNumber { get; set; } = user.IdNumber;
+        public string Email { get; set; } = user.Email ?? string.Empty;
         public string FirstName { get; set; } = user.FirstName;
         public string LastName { get; set; } = user.LastName;
 
