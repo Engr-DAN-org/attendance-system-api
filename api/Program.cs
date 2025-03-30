@@ -19,24 +19,6 @@ var env = builder.Environment;
 // prefetch the port from the environment variable or use 5182 as default
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5182";
 
-// prefetch emailSetting variables from the environment variables or throw an exception if not set
-// This is used to configure the SMTP email service settings
-var emailSettings = new EmailSettings
-{
-    Server = Environment.GetEnvironmentVariable("SMTP_SERVER")
-        ?? throw new InvalidOperationException("SMTP_SERVER environment variable is not set."),
-    Port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")
-        ?? throw new InvalidOperationException("SMTP_PORT environment variable is not set.")),
-    SenderEmail = Environment.GetEnvironmentVariable("SMTP_SENDER_EMAIL")
-        ?? throw new InvalidOperationException("SMTP_SENDER_EMAIL environment variable is not set."),
-    SenderName = Environment.GetEnvironmentVariable("SMTP_SENDER_NAME")
-        ?? throw new InvalidOperationException("SMTP_SENDER_NAME environment variable is not set."),
-    Username = Environment.GetEnvironmentVariable("SMTP_USERNAME")
-        ?? throw new InvalidOperationException("SMTP_USERNAME environment variable is not set."),
-    Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
-        ?? throw new InvalidOperationException("SMTP_PASSWORD environment variable is not set.")
-};
-
 // open the port for outside the Container
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -49,7 +31,7 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     // ✅ Parse the DATABASE_URL into a connection string
-    var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    var dbUrl = VariableParser.GetEnvString("DATABASE_URL");
     if (string.IsNullOrEmpty(dbUrl))
         throw new InvalidOperationException("DATABASE_URL environment variable is not set.");
 
@@ -77,8 +59,15 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 
 // ✅ Configure Brevo SMTP Email Service
-builder.Services.AddSingleton(emailSettings);
-
+builder.Services.Configure<EmailSettings>((option) =>
+{
+    option.Server = VariableParser.GetEnvString("SMTP_SERVER");
+    option.Port = VariableParser.GetEnvInt("SMTP_PORT");
+    option.SenderEmail = VariableParser.GetEnvString("SMTP_SENDER_EMAIL");
+    option.SenderName = VariableParser.GetEnvString("SMTP_SENDER_NAME");
+    option.Username = VariableParser.GetEnvString("SMTP_USERNAME");
+    option.Password = VariableParser.GetEnvString("SMTP_PASSWORD");
+});
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

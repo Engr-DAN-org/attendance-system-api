@@ -46,8 +46,8 @@ public class TokenGenerator
 
     public byte[] GetSecretKey()
     {
-        // string key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        string key = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? "SecretKeyShouldBeLongAndSecure";
+        string randomKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        string key = VariableParser.GetEnvString("JWT_SECRET_KEY") ?? randomKey;
 
         return Encoding.UTF8.GetBytes(key);
     }
