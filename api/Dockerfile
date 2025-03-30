@@ -15,9 +15,11 @@ FROM base AS dev
 # Enable polling file watcher for hot reload
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 
-# Install EF Core CLI tools
-RUN dotnet tool install --global dotnet-ef
-ENV PATH="${PATH}:/root/.dotnet/tools"
+# Install EF Core CLI tools AND add it to the PATH permanently in the container.
+RUN dotnet tool install --global dotnet-ef \
+    && export PATH="$PATH:/root/.dotnet/tools"
+    
+ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Copy project file & restore dependencies
 COPY *.csproj ./
@@ -26,8 +28,8 @@ RUN dotnet restore
 # Copy the rest of the files
 COPY . .
 
-# Run with the migration files
-RUN dotnet-ef database update
+# # Run with the migration files
+# RUN dotnet-ef database update
 
 # Run with hot reload and automatic restart
 CMD ["dotnet", "watch", "run", "--no-hot-restart", "--accept-hot-reload", "--urls", "http://0.0.0.0:5182"]
