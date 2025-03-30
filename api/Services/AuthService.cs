@@ -74,7 +74,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         catch (Exception)
         {
             await transaction.RollbackAsync();
-            return new AuthResponseDTO { ResponseType = AuthResponseType.Error };
+            throw;
         }
     }
 

@@ -38,9 +38,9 @@ public class TwoFactorRepository(AppDbContext context) : ITwoFactorRepository
             await _context.SaveChangesAsync();
             return twoFactorAuth;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception($"Error creating TwoFactorAuth for {email}: {ex.Message}");
+            throw;
         }
     }
 
@@ -56,9 +56,9 @@ public class TwoFactorRepository(AppDbContext context) : ITwoFactorRepository
                 await _context.SaveChangesAsync();
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception($"Error deleting TwoFactorAuth: {ex.Message}");
+            throw;
         }
     }
 

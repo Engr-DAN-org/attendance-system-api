@@ -62,7 +62,6 @@ namespace api.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
