@@ -32,7 +32,7 @@ public class AuthResponseDTO
     public string Message => AuthResponseMessages.GetMessage(ResponseType);
     public string? Token { get; set; }
     public DateTime? Expiry { get; set; }
-    public string? Role { get; set; }
+    public AuthUserDTO? User { get; set; }
 }
 
 

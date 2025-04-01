@@ -16,6 +16,10 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
+
+var currentEnvironment = env.IsDevelopment() ? "Development" : "Production";
+Console.WriteLine($"Starting the Program in {currentEnvironment} Environment...");
+
 // prefetch the port from the environment variable or use 5182 as default
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5182";
 

@@ -18,7 +18,7 @@ namespace api.Models.Entities
 
         private static bool IsInProductionEnv()
         {
-            return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production";
+            return VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") == "Production";
         }
     }
 }

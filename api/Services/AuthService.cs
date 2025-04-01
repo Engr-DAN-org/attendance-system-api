@@ -78,7 +78,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             {
                 Token = authToken,
                 Expiry = DateTime.UtcNow.AddHours(1),
-                Role = user.Role
+                User = new AuthUserDTO(user),
             };
 
         }
