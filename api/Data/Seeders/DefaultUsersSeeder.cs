@@ -20,7 +20,8 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 FirstName = "Admin",
                 LastName = "Account",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"), // Hashed password
-                UserRole = UserRole.Admin
+                UserRole = UserRole.Admin,
+                Status = UserStatus.Active
             },
 
             new() {
@@ -29,7 +30,8 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 FirstName = "Dave",
                 LastName = "Teacher",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                UserRole = UserRole.Teacher
+                UserRole = UserRole.Teacher,
+                Status = UserStatus.Active
             },
 
             new() {
@@ -38,7 +40,8 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 FirstName = "Dave Arlu",
                 LastName = "Student",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                UserRole = UserRole.Student
+                UserRole = UserRole.Student,
+                Status = UserStatus.Active
             }
         };
 

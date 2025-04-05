@@ -33,26 +33,32 @@ namespace api.Repositories
 
         public async Task DeleteSectionAsync(int id)
         {
-            var section = await GetSectionByIdAsync(id);
-            _context.Sections.Remove(section);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var section = await GetSectionByIdAsync(id);
+                _context.Sections.Remove(section);
+                await _context.SaveChangesAsync();
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+
         }
 
         public async Task<Section> GetSectionByIdAsync(int id)
         {
-            var section = await _context.Sections.FirstOrDefaultAsync(sec => sec.Id == id) ?? throw new NotFoundException(nameof(Section));
-
-            return section;
+            return await _context.Sections.FirstOrDefaultAsync(sec => sec.Id == id) ?? throw new NotFoundException(nameof(Section));
         }
 
-        public Task<Section[]> GetSectionByTeacherIdAsync(string id)
+        public async Task<List<Section>> GetSectionByTeacherIdAsync(string id)
         {
-            throw new NotImplementedException();
+            return await _context.Sections.Where(sec => sec.TeacherId == id).ToListAsync() ?? throw new NotFoundException(nameof(Section));
         }
 
-        public Task<Section[]> GetSectionsAsync()
+        public Task<List<Section>> GetSectionsAsync()
         {
-            throw new NotImplementedException();
+            return _context.Sections.ToListAsync() ?? throw new NotFoundException(nameof(Section));
         }
 
         public async Task RollbackTransactionAsync()
@@ -60,7 +66,6 @@ namespace api.Repositories
 
             await _context.Database.RollbackTransactionAsync();
         }
-
 
         public async Task BeginTransactionAsync()
         {
@@ -73,16 +78,23 @@ namespace api.Repositories
         }
         public async Task<Section> UpdateSectionAsync(int sectionId, CreateSectionDTO createSectionDTO)
         {
-            var section = await GetSectionByIdAsync(sectionId);
+            try
+            {
+                var section = await GetSectionByIdAsync(sectionId);
 
-            section.YearLevel = createSectionDTO.YearLevel;
-            section.Name = createSectionDTO.Name;
-            section.Description = createSectionDTO.Description;
-            section.TeacherId = createSectionDTO.TeacherId;
+                section.YearLevel = createSectionDTO.YearLevel;
+                section.Name = createSectionDTO.Name;
+                section.Description = createSectionDTO.Description;
+                section.TeacherId = createSectionDTO.TeacherId;
 
-            await _context.SaveChangesAsync();
-            return section;
+                await _context.SaveChangesAsync();
+                return section;
+            }
+            catch (System.Exception)
+            {
 
+                throw;
+            }
         }
     }
 }

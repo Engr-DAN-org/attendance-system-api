@@ -11,6 +11,8 @@ public class User : IdentityUser
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public UserRole UserRole { get; set; } = UserRole.Student;
+
+    public UserStatus Status { get; set; } = UserStatus.Inactive;
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
     public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 

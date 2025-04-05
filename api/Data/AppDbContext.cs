@@ -7,6 +7,7 @@ namespace api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
+    public DbSet<Course> Courses { get; set; }
     public DbSet<Guardian> Guardians { get; set; }
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Section> Sections { get; set; }
@@ -15,6 +16,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Course>()
+            .HasIndex(c => c.Code)
+            .IsUnique(); // ✅ Ensures unique course codes
+        modelBuilder.Entity<Course>()
+            .HasIndex(c => c.Name)
+            .IsUnique(); // ✅ Ensures unique course codes
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.Sections)
+            .WithOne(s => s.Course)
+            .HasForeignKey(s => s.CourseId)
+            .OnDelete(DeleteBehavior.Cascade); // ✅ Prevent orphan sections    
+
+        modelBuilder.Entity<Subject>()
+            .HasKey(s => s.Id); // ✅ Ensures unique subject IDs
+        modelBuilder.Entity<Subject>()
+            .HasKey(s => s.Code); // ✅ Ensures unique subject codes
 
         modelBuilder.Entity<Section>()
             .HasMany(s => s.Students)

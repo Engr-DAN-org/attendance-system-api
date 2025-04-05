@@ -10,6 +10,9 @@ public class Section
     public required string Name { get; set; }
     public string Description { get; set; } = "";
 
+    public int CourseId { get; set; }
+    public Course? Course { get; set; }
+
     public string? TeacherId { get; set; }
     public User? Teacher { get; set; }
     public User[] Students { get; set; } = [];

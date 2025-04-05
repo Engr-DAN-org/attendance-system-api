@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
+using api.Models.Entities;
 
 namespace api.Services
 {
@@ -14,48 +16,68 @@ namespace api.Services
 
         public async Task<GetSectionDTO> CreateSectionAsync(CreateSectionDTO section)
         {
-            await _sectionRepository.BeginTransactionAsync();
             try
             {
                 var newSection = await _sectionRepository.CreateSectionAsync(section);
-
-                await _sectionRepository.CommitTransactionAsync();
 
                 return new GetSectionDTO(newSection);
             }
             catch (Exception)
             {
-                await _sectionRepository.RollbackTransactionAsync();
                 throw;
             }
         }
 
         public async Task DeleteSectionAsync(int sectionId)
         {
-            await _sectionRepository.BeginTransactionAsync();
             try
             {
                 await _sectionRepository.DeleteSectionAsync(sectionId);
-
-                await _sectionRepository.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                await _sectionRepository.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task<GetSectionDTO> GetSectionByIdAsync(int sectionId)
+        {
+            try
+            {
+                var section = await _sectionRepository.GetSectionByIdAsync(sectionId) ?? throw new NotFoundException(nameof(Section));
+                return new GetSectionDTO(section);
+            }
+            catch (Exception)
+            {
 
                 throw;
             }
         }
 
-        public async Task<GetSectionDTO?> GetSectionByIdAsync(int sectionId)
+        public async Task<List<GetSectionDTO>> GetSectionsAsync()
         {
-            var section = await _sectionRepository.GetSectionByIdAsync(sectionId);
-            return section == null ? null : new GetSectionDTO(section);
+            try
+            {
+                var sections = await _sectionRepository.GetSectionsAsync();
+                return [.. sections.Select(section => new GetSectionDTO(section))];
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
-        public Task<GetSectionDTO> UpdateSectionAsync(int sectionId, CreateSectionDTO section)
+        public async Task<GetSectionDTO> UpdateSectionAsync(int sectionId, CreateSectionDTO section)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var updatedSection = await _sectionRepository.UpdateSectionAsync(sectionId, section);
+                return new GetSectionDTO(updatedSection);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

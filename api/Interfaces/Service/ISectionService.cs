@@ -10,7 +10,10 @@ namespace api.Interfaces.Service
     {
         public Task<GetSectionDTO> CreateSectionAsync(CreateSectionDTO section);
         public Task<GetSectionDTO> UpdateSectionAsync(int sectionId, CreateSectionDTO section);
+
+        public Task<List<GetSectionDTO>> GetSectionsAsync();
+
         public Task DeleteSectionAsync(int sectionId);
-        public Task<GetSectionDTO?> GetSectionByIdAsync(int sectionId);
+        public Task<GetSectionDTO> GetSectionByIdAsync(int sectionId);
     }
 }

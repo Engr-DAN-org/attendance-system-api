@@ -5,11 +5,11 @@ namespace api.Interfaces.Repository;
 
 public interface ISubjectRepository
 {
-    public Task<Subject> GetSubjectByIdAsync(string id);
-    public Task<Subject> GetSubjectByNameAsync(string name);
-    public Task<Subject[]> GetSubjectsAsync();
-    public Task<Subject> UpdateSubjectAsync(Subject subject);
-    public Task<Subject> CreateSubjectAsync(Subject subject);
-    public Task<Subject> DeleteSubjectAsync(string id);
+    Task<Subject> GetSubjectByIdAsync(string id);
+    Task<Subject> GetSubjectByNameAsync(string name);
+    Task<Subject[]> GetSubjectsAsync();
+    Task<Subject> UpdateSubjectAsync(Subject subject);
+    Task<Subject> CreateSubjectAsync(Subject subject);
+    Task DeleteSubjectAsync(string id);
 
 }
