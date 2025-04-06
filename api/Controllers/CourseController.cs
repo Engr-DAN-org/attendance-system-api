@@ -2,6 +2,7 @@ using System.Data;
 using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Models.DTOs;
+using api.Models.QueryParams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +16,11 @@ namespace api.Controllers
         private readonly ICourseRepository _courseRepository = courseRepository;
 
         [HttpGet]
-        public async Task<IActionResult> GetCourses()
+        public async Task<IActionResult> GetCourses([FromQuery] CourseQuery courseQuery)
         {
             try
             {
-                var courses = await _courseRepository.GetAllCoursesAsync();
+                var courses = await _courseRepository.GetCourseQueryAsync(courseQuery);
                 return Ok(courses);
             }
             catch (Exception e)

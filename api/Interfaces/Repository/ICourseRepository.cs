@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 
 namespace api.Interfaces.Repository
 {
@@ -13,6 +14,6 @@ namespace api.Interfaces.Repository
         Task<Course> GetCourseByIdAsync(int id);
         Task<Course> UpdateCourseAsync(int id, CreateCourseDTO courseDTO);
         Task DeleteCourseAsync(int id);
-        Task<List<Course>> GetAllCoursesAsync(); //will add query params later
+        Task<CourseQueryDTO> GetCourseQueryAsync(CourseQuery courseQuery); //will add query params later
     }
 }

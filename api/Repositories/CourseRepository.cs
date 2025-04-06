@@ -8,6 +8,7 @@ using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories
@@ -59,13 +60,29 @@ namespace api.Repositories
             }
         }
 
-        public async Task<List<Course>> GetAllCoursesAsync()
+        public async Task<CourseQueryDTO> GetCourseQueryAsync(CourseQuery courseQuery)
         {
             try
             {
-                return await _context.Courses.ToListAsync();
+                var query = _context.Courses.AsQueryable();
+                if (!string.IsNullOrEmpty(courseQuery.Name))
+                    query = query.Where(c => c.Name.Contains(courseQuery.Name, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(courseQuery.Code))
+                    query = query.Where(c => c.Code.Contains(courseQuery.Code, StringComparison.OrdinalIgnoreCase));
+                if (courseQuery.Years.HasValue)
+                    query = query.Where(c => c.Years == courseQuery.Years.Value);
+
+                int totalCount = await query.CountAsync();
+                int totalPages = (int)Math.Ceiling((double)totalCount / courseQuery.PageSize);
+                var data = await query
+                    .Skip((courseQuery.PageNumber - 1) * courseQuery.PageSize)
+                    .Take(courseQuery.PageSize)
+                    .ToListAsync();
+
+                return new CourseQueryDTO(totalCount, totalPages, courseQuery.PageNumber, courseQuery.PageSize, data);
+
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw;
             }

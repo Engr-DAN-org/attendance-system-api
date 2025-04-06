@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Configs\" />
+    <Folder Include="Constants\" />
     <Folder Include="Middlewares\" />
     <Folder Include="Models\Entities\" />
   </ItemGroup>

@@ -22,4 +22,17 @@ namespace api.Models.DTOs
         public required string Description { get; set; } = "";
     }
 
+    public class CourseQueryDTO : BaseQueryDTO<GetCourseDTO>
+    {
+        public CourseQueryDTO(int totalCount, int totalPages, int page, int pageSize, List<Course> data)
+        {
+            TotalCount = totalCount;
+            TotalPages = totalPages;
+            Page = page;
+            PageSize = pageSize;
+            Data = [.. data.Select(c => new GetCourseDTO(c))];
+        }
+
+    }
+
 }
