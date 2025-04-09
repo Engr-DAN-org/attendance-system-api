@@ -9,5 +9,8 @@ namespace api.Enums
         [EnumMember(Value = "Inactive")]
 
         Inactive,
+
+        [EnumMember(Value = "Suspended")]
+        Suspended,
     }
 }

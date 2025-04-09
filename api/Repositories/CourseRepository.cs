@@ -67,11 +67,18 @@ namespace api.Repositories
             {
                 var query = _context.Courses.AsQueryable();
                 if (!string.IsNullOrEmpty(courseQuery.Name))
-                    query = query.Where(c => c.Name.Contains(courseQuery.Name, StringComparison.OrdinalIgnoreCase));
+                {
+                    var searchName = courseQuery.Name.ToLower();
+                    query = query.Where(c => c.Name.ToLower().Contains(searchName) || c.Code.ToLower().Contains(searchName));
+                }
                 if (!string.IsNullOrEmpty(courseQuery.Code))
                     query = query.Where(c => c.Code.Contains(courseQuery.Code, StringComparison.OrdinalIgnoreCase));
                 if (courseQuery.Years.HasValue)
                     query = query.Where(c => c.Years == courseQuery.Years.Value);
+                if (courseQuery.Sort == Enums.SortOrder.asc.ToString())
+                    query = query.OrderBy(c => c.Id);
+                else if (courseQuery.Sort == Enums.SortOrder.desc.ToString())
+                    query = query.OrderByDescending(c => c.Id);
 
                 int totalCount = await query.CountAsync();
                 int totalPages = (int)Math.Ceiling((double)totalCount / courseQuery.PageSize);
