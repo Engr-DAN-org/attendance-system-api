@@ -8,8 +8,7 @@ namespace api.Models.DTOs
         public int Id { get; set; } = course.Id;
         public string Name { get; set; } = course.Name;
         public string Code { get; set; } = course.Code;
-        public int IconId { get; set; } = course.IconId;
-
+        public int? IconId { get; set; } = course.IconId;
         public int Years { get; set; } = course.Years;
         public string Description { get; set; } = course.Description;
         public DateTime CreatedAt { get; set; } = course.CreatedAt;
@@ -20,9 +19,14 @@ namespace api.Models.DTOs
     {
         public required string Name { get; set; }
         public required string Code { get; set; }
-        public required int IconId { get; set; }
         public required int Years { get; set; } = 4;
         public required string Description { get; set; } = "";
+    }
+
+    public class UpdateIconDTO
+    {
+        [Required(ErrorMessage = "Icon ID is required.")]
+        public int IconId { get; set; }
     }
 
     public class CourseQueryDTO : BaseQueryDTO<GetCourseDTO>

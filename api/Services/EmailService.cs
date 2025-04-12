@@ -17,17 +17,68 @@ namespace api.Services
             var DateTime = DateTimeUtils.DateTimeNowFormattedString();
             if (student.Email != null)
             {
-                var subject = "Student's Attendance Confirmation";
-                var body = $"Hello, <strong>{student.FirstName}</strong>, <br>You have join the class at <strong>{DateTime}</strong>.";
+                var subject = "Class Attendance Confirmation";
+                var body = $@"
+                            <p>Hello <strong>{student.FirstName}</strong>,</p>
+                            <p>This is to confirm that you have successfully joined the class on <strong>{DateTime}</strong>.</p>
+                            <p>Keep up the great attendance!</p>
+                            <br>
+                        ";
                 await SendEmailAsync(student.Email, subject, body);
             }
             if (student.Guardian?.Email != null)
             {
-                var subject = "Guardian Confirmation to Student's Attendance";
-                var body = $"Hello, <strong>{student.Guardian.FirstName}</strong>, <br>Your student has join the class at <strong>{DateTime}</strong>.";
+                var subject = "Student Attendance Notification";
+                var body = $@"
+                            <p>Hello <strong>{student.Guardian.FirstName}</strong>,</p>
+                            <p>This is to inform you that <strong>{student.FirstName}</strong> has successfully joined the class on <strong>{DateTime}</strong>.</p>
+                            <p>Thank you for staying involved in their academic journey.</p>
+                            <br>
+                            ";
                 await SendEmailAsync(student.Guardian.Email, subject, body);
             }
         }
+
+        public async Task SendEmailConfirmationAsync(User student)
+        {
+            var DateTime = DateTimeUtils.DateTimeNowFormattedString();
+            var appUrl = VariableParser.GetEnvString("VITE_APP_URL");
+            var route = $"{appUrl}/verify-email/{student.Id}";
+            if (student.Email != null)
+            {
+                var subject = "Student's First Login";
+                var body = $@"
+                        <p>Hello <strong>{student.FirstName}</strong>,</p>
+                        <p>Welcome aboard! 🎉 You're just one step away from completing your account setup.</p>
+                        <p>Please complete your registration by clicking the link below:</p>
+                        <p>
+                            <a href='{route}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>
+                                Complete Registration
+                            </a>
+                        </p>
+                        <p>This link will expire on <strong>{DateTime}</strong>.</p>
+                        <p>If you did not request this registration, please ignore this message.</p>
+                        <br>
+                        ";
+
+                await SendEmailAsync(student.Email, subject, body);
+            }
+            if (student.Guardian?.Email != null)
+            {
+                var subject = "Guardian Confirmation to Student's Registration";
+                var body = $@"
+                        <p>Hello <strong>{student.Guardian.FirstName}</strong>,</p>
+                        <p>We’re happy to inform you that you’ve been successfully registered as <strong>{student.FirstName}</strong>’s guardian.</p>
+                        <p>From now on, you will receive notifications whenever <strong>{student.FirstName}</strong> logs their daily attendance.</p>
+                        <p>If you have any questions or concerns, feel free to reach out to our support team.</p>
+                        <br>
+                    ";
+
+                await SendEmailAsync(student.Guardian.Email, subject, body);
+            }
+        }
+
+
 
         public async Task SendOTPEmailAsync(string toEmail, string body)
         {

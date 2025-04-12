@@ -34,7 +34,6 @@ namespace api.Repositories
                 {
                     Name = courseDTO.Name,
                     Code = courseDTO.Code,
-                    IconId = courseDTO.IconId,
                     Years = courseDTO.Years,
                     Description = courseDTO.Description,
                 });
@@ -108,7 +107,6 @@ namespace api.Repositories
                 var course = await GetCourseByIdAsync(id);
                 course.Name = courseDTO.Name;
                 course.Code = courseDTO.Code;
-                course.IconId = courseDTO.IconId;
                 course.Years = courseDTO.Years;
                 course.Description = courseDTO.Description;
                 _context.Courses.Update(course);
@@ -116,10 +114,27 @@ namespace api.Repositories
 
                 return course;
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw;
             }
+        }
+
+        public async Task<Course> UpdateCourseIconAsync(int id, UpdateIconDTO iconDTO)
+        {
+            try
+            {
+                var course = await GetCourseByIdAsync(id);
+                course.IconId = iconDTO.IconId;
+                await _context.SaveChangesAsync();
+                return course;
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
     }
 }

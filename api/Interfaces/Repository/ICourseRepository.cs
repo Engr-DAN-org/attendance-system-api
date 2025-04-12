@@ -13,6 +13,7 @@ namespace api.Interfaces.Repository
         Task<Course> CreateCourseAsync(CreateCourseDTO courseDTO);
         Task<Course> GetCourseByIdAsync(int id);
         Task<Course> UpdateCourseAsync(int id, CreateCourseDTO courseDTO);
+        Task<Course> UpdateCourseIconAsync(int id, UpdateIconDTO iconDTO);
         Task DeleteCourseAsync(int id);
         Task<CourseQueryDTO> GetCourseQueryAsync(CourseQuery courseQuery); //will add query params later
     }

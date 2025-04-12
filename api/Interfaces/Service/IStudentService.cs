@@ -13,7 +13,7 @@ namespace api.Interfaces.Service
         public Task<GetStudentDTO> UpdateStudentAsync(UpdateStudentDTO student);
         public Task DeleteStudentAsync(string id);
         public Task<GetStudentDTO?> GetStudentByIdAsync(string id);
-        public Task<List<GetStudentDTO>> GetStudentsAsync(StudentQueryDTO studentQueryDTO);
+        // public Task<List<GetStudentDTO>> GetStudentsAsync(StudentQueryDTO studentQueryDTO);
 
     }
 }

@@ -57,7 +57,7 @@ namespace api.Controllers
             }
             catch (DuplicateNameException e)
             {
-                return BadRequest(e.Message);
+                return NotFound(e.Message);
             }
             catch (Exception e)
             {
@@ -75,7 +75,25 @@ namespace api.Controllers
             }
             catch (NotFoundException e)
             {
-                return BadRequest(e.Message);
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPut("icon-update/{id}")]
+        public async Task<IActionResult> UpdateCourseIcon(int id, [FromBody] UpdateIconDTO iconDTO)
+        {
+            try
+            {
+                var course = await _courseRepository.UpdateCourseIconAsync(id, iconDTO);
+                return Ok(course);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
             }
             catch (Exception e)
             {
@@ -93,7 +111,7 @@ namespace api.Controllers
             }
             catch (NotFoundException e)
             {
-                return BadRequest(e.Message);
+                return NotFound(e.Message);
             }
             catch (Exception e)
             {

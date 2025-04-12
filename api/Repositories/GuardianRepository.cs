@@ -25,8 +25,6 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
             ContactNumber = createGuardianDTO.ContactNumber,
             Relationship = createGuardianDTO.Relationship
         });
-        student.GuardianId = guardian.Entity.Id;
-        student.Guardian = guardian.Entity;
         await _context.SaveChangesAsync(); // Ensure the guardian is saved
         return guardian.Entity;
     }
@@ -64,7 +62,7 @@ public class GuardianRepository(AppDbContext context) : IGuardianRepository
             existingGuardian.LastName = guardian.LastName;
             existingGuardian.Email = guardian.Email;
             existingGuardian.ContactNumber = guardian.ContactNumber;
-            existingGuardian.Relationship = (Enums.StudentGuardianRelationship)guardian.Relationship;
+            existingGuardian.Relationship = guardian.Relationship;
             existingGuardian.Address = guardian.Address;
 
             _context.Guardians.Update(existingGuardian);

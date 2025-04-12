@@ -7,6 +7,7 @@ namespace api.Enums
     public enum AuthResponseType
     {
         Error,
+        EmailInactive,
         InvalidCredentials,
         OTPSent,
         InvalidOTP,
@@ -19,6 +20,7 @@ namespace api.Enums
         public static readonly Dictionary<AuthResponseType, string> Messages = new()
         {
             { AuthResponseType.Error, "An error occurred. Please try again later." },
+            { AuthResponseType.EmailInactive, "In order to finish your account setup, a confirmation link has been sent to your email. Please Complete your registration first." },
             { AuthResponseType.InvalidCredentials, "Invalid login credentials." },
             { AuthResponseType.InvalidOTP, "The OTP entered is invalid." },
             { AuthResponseType.ExpiredOTP, "The OTP has expired. Redirecting to the Login Page." },
@@ -37,6 +39,7 @@ namespace api.Enums
         public static readonly Dictionary<AuthResponseType, int> Status = new()
         {
             { AuthResponseType.Error, 500 },               // Internal Server Error
+            { AuthResponseType.EmailInactive, 403 },       // Forbidden, Not Verified
             { AuthResponseType.InvalidCredentials, 401 },  // Unauthorized
             { AuthResponseType.InvalidOTP, 400 },          // Bad Request (wrong OTP)
             { AuthResponseType.ExpiredOTP, 410 },          // Gone (OTP is no longer valid)

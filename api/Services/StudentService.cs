@@ -18,32 +18,33 @@ namespace api.Services
 
         public async Task<GetStudentDTO> CreateStudentAsync(CreateStudentDTO student)
         {
-            await _userRepository.BeginTransactionAsync();
-            try
-            {
-                var user = await _userRepository.CreateUserAsync(new User()
-                {
-                    IdNumber = student.IdNumber,
-                    FirstName = student.FirstName,
-                    LastName = student.LastName,
-                    Email = student.Email,
-                    UserRole = UserRole.Student,
-                    SectionId = student.SectionId
-                });
+            throw new NotImplementedException("This method is not implemented yet.");
+            // await _userRepository.BeginTransactionAsync();
+            // try
+            // {
+            //     var user = await _userRepository.CreateUserAsync(new User()
+            //     {
+            //         IdNumber = student.IdNumber,
+            //         FirstName = student.FirstName,
+            //         LastName = student.LastName,
+            //         Email = student.Email,
+            //         UserRole = UserRole.Student,
+            //         SectionId = student.SectionId
+            //     });
 
-                var guardian = await _guardianRepository.CreateGuardianAsync(user, student.Guardian);
+            //     var guardian = await _guardianRepository.CreateGuardianAsync(user, student.Guardian);
 
-                user.GuardianId = guardian.Id;
-                user.Guardian = guardian;
+            //     user.GuardianId = guardian.Id;
+            //     user.Guardian = guardian;
 
-                await _userRepository.CommitTransactionAsync();
-                return new GetStudentDTO(user);
-            }
-            catch (Exception)
-            {
-                await _userRepository.RollbackTransactionAsync();
-                throw;
-            }
+            //     await _userRepository.CommitTransactionAsync();
+            //     return new GetStudentDTO(user);
+            // }
+            // catch (Exception)
+            // {
+            //     await _userRepository.RollbackTransactionAsync();
+            //     throw;
+            // }
         }
 
         public async Task DeleteStudentAsync(string id)
@@ -69,30 +70,30 @@ namespace api.Services
             return student?.UserRole == UserRole.Student ? new GetStudentDTO(student) : null;
         }
 
-        public async Task<List<GetStudentDTO>> GetStudentsAsync(StudentQueryDTO studentQueryDTO)
-        {
-            //     public int? YearLevel { get; set; }
-            return await _userRepository.GetUsersAsync<GetStudentDTO>(UserRole.Teacher, studentQueryDTO.Page,
-            queryCallback: query =>
-              {
-                  if (!string.IsNullOrEmpty(studentQueryDTO.Name)) // Filter by Name if provided
-                      query = query.Where(u => u.FullName.Contains(studentQueryDTO.Name, StringComparison.OrdinalIgnoreCase));
-                  if (!string.IsNullOrEmpty(studentQueryDTO.IdNumber))
-                      query = query.Where(u => u.IdNumber == studentQueryDTO.IdNumber);
-                  if (!string.IsNullOrEmpty(studentQueryDTO.Email))
-                      query = query.Where(u => u.FullName.Contains(studentQueryDTO.Email, StringComparison.OrdinalIgnoreCase));
-                  if (!string.IsNullOrEmpty(studentQueryDTO.SectionId) && int.TryParse(studentQueryDTO.SectionId, out int sectionId))
-                      query = query.Where(u => u.SectionId == sectionId);
-                  if (!string.IsNullOrEmpty(studentQueryDTO.GuardianName))
-                      query = query.Where(u => u.Guardian != null && u.Guardian.FullName.Contains(studentQueryDTO.GuardianName));
-                  if (studentQueryDTO.YearLevel != null)
-                      query = query.Where(u => u.Section != null && u.Section.YearLevel == studentQueryDTO.YearLevel);
-              },
-              selectCallback: query =>
-              {
-                  return query.Select(u => new GetStudentDTO(u));
-              });
-        }
+        // public async Task<List<GetStudentDTO>> GetStudentsAsync(StudentQueryDTO studentQueryDTO)
+        // {
+        //     //     public int? YearLevel { get; set; }
+        //     return await _userRepository.GetUsersAsync<GetStudentDTO>(UserRole.Teacher, studentQueryDTO.Page,
+        //     queryCallback: query =>
+        //       {
+        //           if (!string.IsNullOrEmpty(studentQueryDTO.Name)) // Filter by Name if provided
+        //               query = query.Where(u => u.FullName.Contains(studentQueryDTO.Name, StringComparison.OrdinalIgnoreCase));
+        //           if (!string.IsNullOrEmpty(studentQueryDTO.IdNumber))
+        //               query = query.Where(u => u.IdNumber == studentQueryDTO.IdNumber);
+        //           if (!string.IsNullOrEmpty(studentQueryDTO.Email))
+        //               query = query.Where(u => u.FullName.Contains(studentQueryDTO.Email, StringComparison.OrdinalIgnoreCase));
+        //           if (!string.IsNullOrEmpty(studentQueryDTO.SectionId) && int.TryParse(studentQueryDTO.SectionId, out int sectionId))
+        //               query = query.Where(u => u.SectionId == sectionId);
+        //           if (!string.IsNullOrEmpty(studentQueryDTO.GuardianName))
+        //               query = query.Where(u => u.Guardian != null && u.Guardian.FullName.Contains(studentQueryDTO.GuardianName));
+        //           if (studentQueryDTO.YearLevel != null)
+        //               query = query.Where(u => u.Section != null && u.Section.YearLevel == studentQueryDTO.YearLevel);
+        //       },
+        //       selectCallback: query =>
+        //       {
+        //           return query.Select(u => new GetStudentDTO(u));
+        //       });
+        // }
 
         public async Task<GetStudentDTO> UpdateStudentAsync(UpdateStudentDTO updateStudentDTO)
         {

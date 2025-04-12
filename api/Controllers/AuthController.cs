@@ -33,6 +33,22 @@ namespace api.Controllers
         }
 
 
+        [HttpPut("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDTO verifyEmailDTO)
+        {
+            try
+            {
+                var response = await _authService.VerifyEmailAsync(verifyEmailDTO);
+                return StatusCode(AuthResponseStatus.GetStatus(response.ResponseType), response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Email Verification Attempt Failed");
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
+
         [HttpPost("verify-2fa")]
         public async Task<IActionResult> Verify2FAuthAsync([FromBody] TwoFactorRequestDTO twoFactorRequestDTO)
         {

@@ -16,18 +16,19 @@ namespace api.Services
 
         public async Task<GetTeacherDTO> CreateTeacherAsync(CreateTeacherDTO teacher)
         {
-            var user = new User()
-            {
-                IdNumber = teacher.IdNumber,
-                FirstName = teacher.FirstName,
-                LastName = teacher.LastName,
-                Email = teacher.Email,
-                UserRole = UserRole.Teacher
-            };
+            throw new NotImplementedException("This method is not implemented yet.");
+            // var user = new User()
+            // {
+            //     IdNumber = teacher.IdNumber,
+            //     FirstName = teacher.FirstName,
+            //     LastName = teacher.LastName,
+            //     Email = teacher.Email,
+            //     UserRole = UserRole.Teacher
+            // };
 
-            var createdUser = await _userRepository.CreateUserAsync(user);
+            // var createdUser = await _userRepository.CreateUserAsync(user);
 
-            return new GetTeacherDTO(createdUser);
+            // return new GetTeacherDTO(createdUser);
         }
 
         public async Task<GetTeacherDTO> UpdateTeacherAsync(UpdateTeacherDTO teacher)
@@ -62,22 +63,22 @@ namespace api.Services
             return new GetTeacherDTO(user);
         }
 
-        public async Task<List<GetTeacherDTO>> GetTeachersAsync(int page, TeacherQueryDTO teacherQueryDTO)
-        {
+        // public async Task<List<GetTeacherDTO>> GetTeachersAsync(int page, TeacherQueryDTO teacherQueryDTO)
+        // {
 
-            return await _userRepository.GetUsersAsync<GetTeacherDTO>(UserRole.Teacher, page, queryCallback: query =>
-                {
-                    if (!string.IsNullOrEmpty(teacherQueryDTO.Name)) // Filter by Name if provided
-                        query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Name, StringComparison.OrdinalIgnoreCase));
-                    if (!string.IsNullOrEmpty(teacherQueryDTO.IdNumber))
-                        query = query.Where(u => u.IdNumber == teacherQueryDTO.IdNumber);
-                    if (!string.IsNullOrEmpty(teacherQueryDTO.Email))
-                        query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Email, StringComparison.OrdinalIgnoreCase));
-                }, selectCallback: query =>
-                {
-                    return query.Select(u => new GetTeacherDTO(u));
-                });
-        }
+        //     return await _userRepository.GetUsersAsync<GetTeacherDTO>(UserRole.Teacher, page, queryCallback: query =>
+        //         {
+        //             if (!string.IsNullOrEmpty(teacherQueryDTO.Name)) // Filter by Name if provided
+        //                 query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Name, StringComparison.OrdinalIgnoreCase));
+        //             if (!string.IsNullOrEmpty(teacherQueryDTO.IdNumber))
+        //                 query = query.Where(u => u.IdNumber == teacherQueryDTO.IdNumber);
+        //             if (!string.IsNullOrEmpty(teacherQueryDTO.Email))
+        //                 query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Email, StringComparison.OrdinalIgnoreCase));
+        //         }, selectCallback: query =>
+        //         {
+        //             return query.Select(u => new GetTeacherDTO(u));
+        //         });
+        // }
 
     }
 }

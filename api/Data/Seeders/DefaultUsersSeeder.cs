@@ -21,7 +21,7 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 LastName = "Account",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"), // Hashed password
                 UserRole = UserRole.Admin,
-                Status = UserStatus.Active
+                EmailConfirmed = true
             },
 
             new() {
@@ -31,7 +31,7 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 LastName = "Teacher",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 UserRole = UserRole.Teacher,
-                Status = UserStatus.Active
+                EmailConfirmed = true
             },
 
             new() {
@@ -41,7 +41,7 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
                 LastName = "Student",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 UserRole = UserRole.Student,
-                Status = UserStatus.Active
+                EmailConfirmed = false
             }
         };
 

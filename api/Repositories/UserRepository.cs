@@ -5,6 +5,7 @@ using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 using api.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,16 +15,16 @@ public class UserRepository(AppDbContext context) : IUserRepository
 {
     private readonly AppDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<User> CreateUserAsync(User user)
+    public async Task<User> CreateUserAsync(RegisterUserDTO user)
     {
         var createdUser = await _context.Users.AddAsync(new User
         {
+            IdNumber = user.IdNumber,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-            IdNumber = user.IdNumber,
             UserRole = user.UserRole,
-            SectionId = user.SectionId,
+            PhoneNumber = user.PhoneNumber,
         });
         await _context.SaveChangesAsync();
         return createdUser.Entity;
@@ -31,55 +32,87 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
     public async Task<User> DeleteUserAsync(string id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == id) ?? throw new NotFoundException("User");
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-        return user;
+        try
+        {
+            var user = await FindByIdAsync(id);
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+        catch (System.Exception)
+        {
+            throw;
+        }
     }
 
-    public async Task<User?> FindFirstAdmin()
+    public async Task<User> FindFirstAdmin()
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.UserRole == UserRole.Admin);
+        return await _context.Users.FirstOrDefaultAsync(u => u.UserRole == UserRole.Admin) ?? throw new NotFoundException(nameof(User)); ;
     }
 
-    public async Task<User?> FindByEmailOrIdNoAsync(string emailOrIdNo)
+    public async Task<User> FindByEmailOrIdNoAsync(string emailOrIdNo)
     {
         return await _context.Users.FirstOrDefaultAsync(u =>
-            u.Email == emailOrIdNo || u.IdNumber == emailOrIdNo);
+            u.Email == emailOrIdNo || u.IdNumber == emailOrIdNo) ?? throw new NotFoundException(nameof(User)); ;
     }
 
-    public async Task<User?> FindByIdAsync(string id)
+    public async Task<User> FindByIdAsync(string id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new NotFoundException(nameof(User));
     }
 
 
-    public async Task<User?> FindBySchoolIdNoAsync(string schoolId)
+    public async Task<User> FindBySchoolIdNoAsync(string schoolId)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == schoolId);
+        return await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == schoolId) ?? throw new NotFoundException(nameof(User)); ;
     }
 
-    public async Task<List<T>> GetUsersAsync<T>(
-        UserRole userRole,
-        int page,
-        Action<IQueryable<User>>? queryCallback = null,
-        Func<IQueryable<User>, IQueryable<T>>? selectCallback = null)
+    public async Task<UsersQueryDTO> GetUsersAsync(UsersQueryParams queryParams)
     {
-        var pageSize = 10;
-        var query = _context.Users.AsQueryable()
-            .Where(u => u.UserRole == userRole);
+        try
+        {
+            // Apply filters
+            var query = _context.Users.AsQueryable()
+                    .Where(u => u.UserRole != UserRole.Admin);
 
-        queryCallback?.Invoke(query);
+            if (!string.IsNullOrWhiteSpace(queryParams.Name))
+            {
+                var searchName = queryParams.Name.ToLower();
+                query = query.Where(u => (u.FirstName + " " + u.LastName).ToLower().Contains(searchName));
+            }
 
-        // Apply selection (convert to DTOs)
-        var resultQuery = selectCallback != null ? selectCallback(query) : query.Select(u => (T)(object)u);
+            if (queryParams.Role.Length > 0)
+                query = query.Where(u => queryParams.Role.Contains(u.UserRole));
 
-        return await resultQuery
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+            if (queryParams.Status.Length > 0)
+                query = query.Where(u => queryParams.Status.Contains(u.Status));
+
+            // Get total count and total pages
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / queryParams.PageSize);
+
+            // Apply pagination
+            var data = await query
+                .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize)
+                .ToListAsync();
+
+            return new UsersQueryDTO(totalCount, totalPages, queryParams.PageNumber, queryParams.PageSize, data);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
+    public async Task<bool> IsEmailUsedAsync(string email)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == email);
+    }
+    public async Task<bool> IsIdNumberUsedAsync(string idNumber)
+    {
+        return await _context.Users.AnyAsync(u => u.IdNumber == idNumber);
+    }
 
     public async Task<User> UpdateUserAsync(User user)
     {
@@ -102,6 +135,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     {
         await _context.Database.RollbackTransactionAsync();
     }
+
 
     // private readonly IGuardianRepository _guardianRepository = guardianRepository ?? throw new ArgumentNullException(nameof(guardianRepository));
     // public async Task<GetStudentDTO> CreateStudentAsync(CreateStudentDTO studentDTO)

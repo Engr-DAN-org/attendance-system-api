@@ -33,11 +33,17 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             await _context.Database.BeginTransactionAsync();
 
             var user = await _userRepository.FindByEmailOrIdNoAsync(loginDTO.EmailOrIdNo);
-            if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
-                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
 
             if (string.IsNullOrEmpty(user.Email))
                 throw new ArgumentException("User Email required for Two-Factor Authentication is not set. Please contact the Administrator.");
+
+            if (user.EmailConfirmed == false)
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.EmailInactive };
+
+            if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
+
+
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
             await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
@@ -100,11 +106,35 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         throw new NotImplementedException();
     }
 
-
-
-    public Task<string> VerifyEmailAsync(string email, string token)
+    public async Task<AuthResponseDTO> VerifyEmailAsync(VerifyEmailDTO verifyEmailDTO)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await _userRepository.BeginTransactionAsync();
+            var user = await _userRepository.FindByIdAsync(verifyEmailDTO.Id);
+            if (user.EmailConfirmed == true) throw new InvalidOperationException("User is already verified. Please proceed to the login page.");
+
+            user.EmailConfirmed = true;
+            // user.Status = UserStatus.Active;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(verifyEmailDTO.Password);
+
+            var authToken = new TokenGenerator().GenerateAuthToken(user);
+
+            await _userRepository.UpdateUserAsync(user);
+            await _userRepository.CommitTransactionAsync();
+            return new AuthResponseDTO
+            {
+                Token = authToken,
+                Expiry = DateTime.UtcNow.AddHours(1),
+                User = new AuthUserDTO(user),
+            };
+        }
+        catch (Exception)
+        {
+            await _userRepository.RollbackTransactionAsync();
+            throw;
+        }
+
     }
 
     public async Task<GetProfileDTO> GetProfileAsync(string userId)

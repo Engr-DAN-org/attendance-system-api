@@ -10,7 +10,7 @@ namespace api.Models.Entities
         public int Id { get; set; }
         public required string Name { get; set; }
         public required string Code { get; set; }
-        public required int IconId { get; set; }
+        public int? IconId { get; set; }
         public int Years { get; set; } = 4;
         public string Description { get; set; } = "";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -14,20 +14,20 @@ namespace api.Controllers
     {
         private readonly IStudentService _studentService = studentService ?? throw new ArgumentNullException(nameof(studentService));
 
-        [HttpGet]
-        [Authorize(Policy = "RequireTeacherOrAdmin")]
-        public async Task<IActionResult> GetStudents([FromQuery] StudentQueryDTO studentQueryDTO)
-        {
-            try
-            {
-                var users = await _studentService.GetStudentsAsync(studentQueryDTO);
-                return Ok(users);
-            }
-            catch (System.Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
+        // [HttpGet]
+        // [Authorize(Policy = "RequireTeacherOrAdmin")]
+        // public async Task<IActionResult> GetStudents([FromQuery] StudentQueryDTO studentQueryDTO)
+        // {
+        //     try
+        //     {
+        //         var users = await _studentService.GetStudentsAsync(studentQueryDTO);
+        //         return Ok(users);
+        //     }
+        //     catch (System.Exception e)
+        //     {
+        //         return StatusCode(500, e.Message);
+        //     }
+        // }
 
         [HttpPost("create")]
         // [Authorize(Policy = "RequireTeacherOrAdmin")]

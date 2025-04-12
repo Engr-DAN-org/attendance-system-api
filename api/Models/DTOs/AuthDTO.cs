@@ -11,6 +11,13 @@ public class LoginDTO
     public required string Password { get; set; }
 }
 
+public class VerifyEmailDTO
+{
+    public required string Id { get; set; }
+    public required string Email { get; set; }
+    public required string Password { get; set; }
+}
+
 public class TwoFactorRequestDTO
 {
     public required string Email { get; set; }
