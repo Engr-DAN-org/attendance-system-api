@@ -9,5 +9,7 @@ namespace api.Interfaces.Service
     public interface IUserService
     {
         Task<AuthUserDTO> RegisterAsync(RegisterUserDTO registerDTO);
+
+        Task<AuthUserDTO> UpdateCredentialsAsync(string id, RegisterUserDTO registerDTO);
     }
 }

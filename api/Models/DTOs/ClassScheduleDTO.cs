@@ -10,7 +10,7 @@ namespace api.Models.DTOs
     {
         public int Id { get; set; } = classSchedule.Id;
         public int SectionId { get; set; } = classSchedule.SectionId;
-        public string SubjectId { get; set; } = classSchedule.SubjectId;
+        public int SubjectId { get; set; } = classSchedule.SubjectId;
         public string? TeacherId { get; set; } = classSchedule.TeacherId;
         public DayOfWeek Day { get; set; } = classSchedule.Day;
         public TimeOnly StartTime { get; set; } = classSchedule.StartTime;

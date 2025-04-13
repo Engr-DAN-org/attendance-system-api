@@ -32,7 +32,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         modelBuilder.Entity<Subject>()
             .HasKey(s => s.Id); // ✅ Ensures unique subject IDs
         modelBuilder.Entity<Subject>()
-            .HasKey(s => s.Code); // ✅ Ensures unique subject codes
+            .HasIndex(s => s.Code)
+            .IsUnique(); // ✅  Ensures the subject code is unique
 
         modelBuilder.Entity<Section>()
             .HasMany(s => s.Students)

@@ -7,7 +7,7 @@ public class ClassSchedule
 {
     public int Id { get; set; }
     public int SectionId { get; set; }
-    public required string SubjectId { get; set; }
+    public required int SubjectId { get; set; }
     public string? TeacherId { get; set; }
     public DayOfWeek Day { get; set; }
     public required TimeOnly StartTime { get; set; }

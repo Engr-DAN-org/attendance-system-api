@@ -15,7 +15,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
 {
     private readonly AppDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-    public async Task<User> CreateUserAsync(RegisterUserDTO user)
+    public async Task<User> CreateUserAsync(RegisterUserDTO user, string password)
     {
         var createdUser = await _context.Users.AddAsync(new User
         {
@@ -25,6 +25,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
             Email = user.Email,
             UserRole = user.UserRole,
             PhoneNumber = user.PhoneNumber,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
         });
         await _context.SaveChangesAsync();
         return createdUser.Entity;
@@ -35,6 +36,14 @@ public class UserRepository(AppDbContext context) : IUserRepository
         try
         {
             var user = await FindByIdAsync(id);
+            if (user.GuardianId != null)
+            {
+                var guardian = await _context.Guardians.FindAsync(user.GuardianId);
+                if (guardian != null)
+                {
+                    _context.Guardians.Remove(guardian);
+                }
+            }
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return user;
@@ -105,12 +114,20 @@ public class UserRepository(AppDbContext context) : IUserRepository
         }
     }
 
-    public async Task<bool> IsEmailUsedAsync(string email)
+    public async Task<bool> IsEmailUsedAsync(string email, User? user = null)
     {
+        if (user != null)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email && u.Id != user.Id);
+        }
         return await _context.Users.AnyAsync(u => u.Email == email);
     }
-    public async Task<bool> IsIdNumberUsedAsync(string idNumber)
+    public async Task<bool> IsIdNumberUsedAsync(string idNumber, User? user = null)
     {
+        if (user != null)
+        {
+            return await _context.Users.AnyAsync(u => u.IdNumber == idNumber && u.Id != user.Id);
+        }
         return await _context.Users.AnyAsync(u => u.IdNumber == idNumber);
     }
 

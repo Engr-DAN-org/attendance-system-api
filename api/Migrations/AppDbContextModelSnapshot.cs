@@ -234,9 +234,8 @@ namespace api.Migrations
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
-                    b.Property<string>("SubjectId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TeacherId")
                         .HasColumnType("text");
@@ -433,7 +432,14 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Entities.Subject", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -443,9 +449,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -453,7 +456,10 @@ namespace api.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("Subjects");
                 });
