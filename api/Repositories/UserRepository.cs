@@ -91,10 +91,20 @@ public class UserRepository(AppDbContext context) : IUserRepository
             }
 
             if (queryParams.Role.Length > 0)
-                query = query.Where(u => queryParams.Role.Contains(u.UserRole));
+            {
+                var roleEnums = queryParams.Role
+                        .Select(r => Enum.Parse<UserRole>(r, ignoreCase: true))
+                        .ToList();
+                query = query.Where(u => roleEnums.Contains(u.UserRole));
+            }
 
             if (queryParams.Status.Length > 0)
-                query = query.Where(u => queryParams.Status.Contains(u.Status));
+            {
+                var statusEnums = queryParams.Status
+                        .Select(s => Enum.Parse<UserStatus>(s, ignoreCase: true))
+                        .ToList();
+                query = query.Where(u => statusEnums.Contains(u.Status));
+            }
 
             // Get total count and total pages
             var totalCount = await query.CountAsync();

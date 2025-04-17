@@ -12,6 +12,9 @@ namespace api.Models.DTOs
         public string Code { get; set; } = subject.Code;
         public string Name { get; set; } = subject.Name;
         public string? Description { get; set; } = subject.Description;
+
+        // public List<ClassSchedule> ClassSchedules { get; set; } = subject.ClassSchedules.ToList();
+        public List<GetSubjectTeacherDTO> SubjectTeachers { get; set; } = [.. subject.SubjectTeachers.Select(st => new GetSubjectTeacherDTO(st))];
     }
 
     public class CreateSubjectDTO
@@ -19,6 +22,7 @@ namespace api.Models.DTOs
         public required string Code { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
+        public List<CreateSubjectTeacherDTO> SubjectTeachers { get; set; } = [];
 
         public Subject ToSubject(int? id = null)
         {

@@ -5,7 +5,7 @@ namespace api.Models.QueryParams
 {
     public class UsersQueryParams : BaseQueryParams
     {
-        public UserRole[] Role { get; set; } = [];
-        public UserStatus[] Status { get; set; } = [];
+        public string[] Role { get; set; } = [];
+        public string[] Status { get; set; } = [];
     }
 }

@@ -18,17 +18,24 @@ namespace api.Repositories
 
         public async Task<GetSubjectDTO> CreateSubjectAsync(CreateSubjectDTO subject)
         {
+            var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var newSubject = subject.ToSubject();
-                await _context.Subjects.AddAsync(newSubject);
+                var newSubject = await _context.Subjects.AddAsync(subject.ToSubject());
                 await _context.SaveChangesAsync();
 
-                return new GetSubjectDTO(newSubject);
+                if (subject.SubjectTeachers.Count > 0)
+                {
+                    var linkedTeachers = subject.SubjectTeachers.Select(st => st.ToModel(newSubject.Entity.Id));
+                    await _context.SubjectTeachers.AddRangeAsync(linkedTeachers);
+                }
+
+                await transaction.CommitAsync();
+                return new GetSubjectDTO(newSubject.Entity);
             }
             catch (System.Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }
@@ -94,19 +101,34 @@ namespace api.Repositories
 
         public async Task<GetSubjectDTO> UpdateSubjectAsync(int id, CreateSubjectDTO subject)
         {
+            var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var existingSubject = await FindByIdAsync(id);
 
                 var updatedSubject = subject.ToSubject(id);
 
-                _context.Subjects.Update(updatedSubject);
+                // Remove existing subject-teacher links
+                var subjectTeachers = _context.SubjectTeachers.Where(st => st.SubjectId == id);
+                _context.SubjectTeachers.RemoveRange(subjectTeachers);
                 await _context.SaveChangesAsync();
 
+                // Add new subject-teacher links
+                if (subject.SubjectTeachers.Count > 0)
+                {
+                    var newLinks = subject.SubjectTeachers.Select(st => st.ToModel(id));
+                    await _context.SubjectTeachers.AddRangeAsync(newLinks);
+                    await _context.SaveChangesAsync();
+                }
+                // Update the subject
+                _context.Subjects.Update(updatedSubject);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return new GetSubjectDTO(existingSubject);
             }
             catch (System.Exception)
             {
+                await transaction.RollbackAsync();
                 throw;
             }
         }

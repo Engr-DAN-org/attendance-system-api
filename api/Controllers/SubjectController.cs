@@ -70,6 +70,24 @@ namespace api.Controllers
             }
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSubject(int id, [FromBody] CreateSubjectDTO subjectDTO)
+        {
+            try
+            {
+                var subject = await _subjectRepository.UpdateSubjectAsync(id, subjectDTO);
+                return Ok(subject);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSubject(int id)
         {

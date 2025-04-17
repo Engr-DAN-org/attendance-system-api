@@ -28,6 +28,7 @@ public class User : IdentityUser
 
 
     // ✅ Only Teachers can have Class Schedules
+    public List<SubjectTeacher> SubjectTeachers { get; set; } = [];
     public List<ClassSchedule> ClassSchedules { get; set; } = [];
     public List<ClassSession> ClassSessions { get; set; } = [];
 

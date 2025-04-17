@@ -10,12 +10,33 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Course> Courses { get; set; }
     public DbSet<Guardian> Guardians { get; set; }
     public DbSet<Subject> Subjects { get; set; }
+    public DbSet<SubjectTeacher> SubjectTeachers { get; set; }
     public DbSet<Section> Sections { get; set; }
     public DbSet<TwoFactorAuth> TwoFactorAuths { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasKey(st => new { st.SubjectId, st.TeacherId });
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasIndex(st => new { st.SubjectId, st.TeacherId })
+            .IsUnique(); // Ensures unique subject-teacher pairs
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasOne(st => st.Subject)
+            .WithMany(s => s.SubjectTeachers)
+            .HasForeignKey(st => st.SubjectId)
+            .OnDelete(DeleteBehavior.Cascade); // Prevent orphan subject-teacher pairs
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasOne(st => st.Teacher)
+            .WithMany(t => t.SubjectTeachers)
+            .HasForeignKey(st => st.TeacherId)
+            .OnDelete(DeleteBehavior.Cascade); // Prevent orphan subject-teacher pairs
+
 
         modelBuilder.Entity<Course>()
             .HasIndex(c => c.Code)

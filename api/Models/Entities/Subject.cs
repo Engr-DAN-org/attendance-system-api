@@ -9,7 +9,8 @@ public class Subject
     public required string Code { get; set; }
     public required string Name { get; set; }
     public string Description { get; set; } = "";
-    public ClassSchedule[] ClassSchedules { get; set; } = [];
+    public List<ClassSchedule> ClassSchedules { get; set; } = [];
+    public List<SubjectTeacher> SubjectTeachers { get; set; } = [];
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
     public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 }
