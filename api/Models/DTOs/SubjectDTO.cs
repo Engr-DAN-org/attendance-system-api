@@ -54,6 +54,6 @@ namespace api.Models.DTOs
             PageSize = pageSize;
             Data = [.. data.Select(sub => new GetSubjectDTO(sub))];
         }
-
     }
+
 }

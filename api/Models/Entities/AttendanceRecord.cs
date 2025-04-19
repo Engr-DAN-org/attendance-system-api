@@ -6,38 +6,51 @@ namespace api.Models.Entities;
 public class AttendanceRecord
 {
     public int Id { get; set; }
+
+    // 🔗 Relationships
     public int ClassScheduleId { get; set; }
-    public required ClassSchedule ClassSchedule { get; set; }
+    public ClassSchedule? ClassSchedule { get; set; }
+    public required string StudentId { get; set; }
+    public User? Student { get; set; }
 
-    public bool IsOverRidden() => CreatedAt != UpdatedAt;
-
-    //  Date for date record
+    // 🕒 Timestamps
+    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime ClockInRecord { get; set; } = DateTimeUtils.DateTimeNow();
     public DateOnly Date { get; set; } = DateTimeUtils.DateNow();
 
-    public required string StudentId { get; set; }
-    public required User Student { get; set; }
-
-
-    // ✅ Store student's location at scan time
+    // 🧭 Location details
     public string? Location { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public float? Distance { get; set; }
 
-    public bool IsLate() => TimeIn > ClassSchedule.StartTime.AddMinutes(ClassSchedule.GracePeriod);
-    public DateTime ClockInRecord { get; set; } = DateTimeUtils.DateTimeNow();
+    // 🕓 Attendance times
     public TimeOnly TimeIn { get; set; } = DateTimeUtils.TimeNow();
     public TimeOnly? TimeOut { get; set; }
 
+    // 🧠 Logic
+    public bool IsLate()
+    {
+        if (TimeOnly.TryParse(ClassSchedule.StartTime, out var startTime))
+        {
+            var allowedTime = startTime.AddMinutes(ClassSchedule.GracePeriod);
+            return TimeIn > allowedTime;
+        }
+
+        // If invalid StartTime, consider not late or log the error externally
+        return false;
+    }
+
+    public bool IsOverRidden() => CreatedAt != UpdatedAt;
+
+    // 🧾 Display helpers
     public string StudentName => Student.FullName;
-    public string Subject => ClassSchedule.Subject.Name;
-    public string Section => ClassSchedule.Section.Name;
+    public string SubjectName => ClassSchedule.Subject.Name;
+    public string SectionName => ClassSchedule.Section.Name;
     public string Teacher => ClassSchedule.Teacher?.FullName ?? "N/A";
 
-    public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
-    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
-
-    // ✅ Haversine formula to calculate distance in meters
+    // 📏 Distance calculation
     private static double HaversineDistance(double lat1, double lon1, double lat2, double lon2)
     {
         const double R = 6371e3; // Radius of Earth in meters
@@ -49,6 +62,6 @@ public class AttendanceRecord
                    Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
 
         double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        return R * c; // Distance in meters
+        return R * c;
     }
 }

@@ -20,7 +20,7 @@ namespace api.Models.DTOs
     public class CreateSubjectTeacherDTO
     {
         public required string TeacherId { get; set; }
-        public required int SubjectId { get; set; }
+        public int? SubjectId { get; set; }
         public SubjectTeacher ToModel(int subjectId)
         {
             return new SubjectTeacher

@@ -23,11 +23,11 @@ namespace api.Repositories
             {
                 var newSubject = await _context.Subjects.AddAsync(subject.ToSubject());
                 await _context.SaveChangesAsync();
-
                 if (subject.SubjectTeachers.Count > 0)
                 {
                     var linkedTeachers = subject.SubjectTeachers.Select(st => st.ToModel(newSubject.Entity.Id));
                     await _context.SubjectTeachers.AddRangeAsync(linkedTeachers);
+                    await _context.SaveChangesAsync();
                 }
 
                 await transaction.CommitAsync();
@@ -76,7 +76,7 @@ namespace api.Repositories
 
                 if (!string.IsNullOrEmpty(queryParams.TeacherId))
                 {
-                    query = query.Where(s => s.ClassSchedules.Any(sched => sched.TeacherId == queryParams.TeacherId));
+                    query = query.Where(s => s.ClassSchedules != null && s.ClassSchedules.Any(sched => sched.SubjectTeacher != null && sched.SubjectTeacher.TeacherId == queryParams.TeacherId));
                 }
                 if (!string.IsNullOrEmpty(queryParams.Name))
                 {
@@ -86,6 +86,11 @@ namespace api.Repositories
 
                 var totalCount = query.Count();
                 var totalPages = (int)Math.Ceiling((double)totalCount / queryParams.PageSize);
+
+                query = query
+                        .Include(s => s.SubjectTeachers)
+                        .ThenInclude(st => st.Teacher);
+
                 var subjects = await query
                     .Skip((queryParams.Page - 1) * queryParams.PageSize)
                     .Take(queryParams.PageSize)
@@ -106,7 +111,7 @@ namespace api.Repositories
             {
                 var existingSubject = await FindByIdAsync(id);
 
-                var updatedSubject = subject.ToSubject(id);
+                existingSubject.UpdateSubject(subject);
 
                 // Remove existing subject-teacher links
                 var subjectTeachers = _context.SubjectTeachers.Where(st => st.SubjectId == id);
@@ -121,7 +126,7 @@ namespace api.Repositories
                     await _context.SaveChangesAsync();
                 }
                 // Update the subject
-                _context.Subjects.Update(updatedSubject);
+                _context.Subjects.Update(existingSubject);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return new GetSubjectDTO(existingSubject);

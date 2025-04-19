@@ -1,4 +1,5 @@
 using System;
+using api.Models.DTOs;
 using api.Utils;
 
 namespace api.Models.Entities;
@@ -13,4 +14,13 @@ public class Subject
     public List<SubjectTeacher> SubjectTeachers { get; set; } = [];
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
     public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+
+    public Subject UpdateSubject(CreateSubjectDTO subjectDTO)
+    {
+        Code = subjectDTO.Code;
+        Name = subjectDTO.Name;
+        Description = subjectDTO.Description ?? "";
+        UpdatedAt = DateTimeUtils.DateTimeNow();
+        return this;
+    }
 }

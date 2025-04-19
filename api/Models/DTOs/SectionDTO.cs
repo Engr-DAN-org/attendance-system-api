@@ -21,10 +21,24 @@ namespace api.Models.DTOs
 
     public class CreateSectionDTO
     {
+        public required int CourseId { get; set; }
         public required int YearLevel { get; set; }
         public required string Name { get; set; }
         public string Description { get; set; } = "";
         public string? TeacherId { get; set; }
+        public required List<CreateClassScheduleDTO> ClassSchedules { get; set; }
+
+        public Section ToSection()
+        {
+            return new Section()
+            {
+                CourseId = CourseId,
+                YearLevel = YearLevel,
+                Name = Name,
+                Description = Description,
+                TeacherId = TeacherId,
+            };
+        }
     }
 
 }

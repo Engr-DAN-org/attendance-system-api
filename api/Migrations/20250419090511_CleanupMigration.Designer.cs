@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250417130208_AddedSubjectTeacherTable")]
-    partial class AddedSubjectTeacherTable
+    [Migration("20250419090511_CleanupMigration")]
+    partial class CleanupMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -208,7 +208,7 @@ namespace api.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("AttendanceRecord");
+                    b.ToTable("AttendanceRecords");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
@@ -225,8 +225,9 @@ namespace api.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("GracePeriod")
                         .HasColumnType("integer");
@@ -234,8 +235,9 @@ namespace api.Migrations
                     b.Property<int>("SectionId")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("SubjectId")
                         .HasColumnType("integer");
@@ -248,13 +250,14 @@ namespace api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SectionId");
-
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("ClassSchedule");
+                    b.HasIndex("SectionId", "SubjectId", "StartTime", "EndTime")
+                        .IsUnique();
+
+                    b.ToTable("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -462,6 +465,9 @@ namespace api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Subjects");
@@ -789,7 +795,7 @@ namespace api.Migrations
                     b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("Students")
                         .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Section");
                 });

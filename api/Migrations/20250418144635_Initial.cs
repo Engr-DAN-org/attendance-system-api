@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -257,6 +257,34 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubjectTeachers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SubjectId = table.Column<int>(type: "integer", nullable: false),
+                    TeacherId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubjectTeachers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubjectTeachers_AspNetUsers_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SubjectTeachers_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClassSchedule",
                 columns: table => new
                 {
@@ -482,6 +510,23 @@ namespace api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Subjects_Name",
+                table: "Subjects",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectTeachers_SubjectId_TeacherId",
+                table: "SubjectTeachers",
+                columns: new[] { "SubjectId", "TeacherId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectTeachers_TeacherId",
+                table: "SubjectTeachers",
+                column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TwoFactorAuths_Email",
                 table: "TwoFactorAuths",
                 column: "Email",
@@ -550,6 +595,9 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Guardians");
+
+            migrationBuilder.DropTable(
+                name: "SubjectTeachers");
 
             migrationBuilder.DropTable(
                 name: "TwoFactorAuths");

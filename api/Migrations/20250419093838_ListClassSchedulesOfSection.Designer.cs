@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Data;
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419093838_ListClassSchedulesOfSection")]
+    partial class ListClassSchedulesOfSection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,27 +239,22 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("SubjectId")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SubjectTeacherId")
-                        .HasColumnType("integer");
+                    b.Property<string>("TeacherId")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SubjectId");
 
-                    b.HasIndex("SubjectTeacherId");
+                    b.HasIndex("TeacherId");
 
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("SectionId", "SubjectTeacherId", "StartTime", "EndTime")
+                    b.HasIndex("SectionId", "SubjectId", "StartTime", "EndTime")
                         .IsUnique();
 
                     b.ToTable("ClassSchedules");
@@ -707,23 +705,22 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.Subject", null)
+                    b.HasOne("api.Models.Entities.Subject", "Subject")
                         .WithMany("ClassSchedules")
-                        .HasForeignKey("SubjectId");
-
-                    b.HasOne("api.Models.Entities.SubjectTeacher", "SubjectTeacher")
-                        .WithMany("ClassSchedules")
-                        .HasForeignKey("SubjectTeacherId")
+                        .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.User", null)
+                    b.HasOne("api.Models.Entities.User", "Teacher")
                         .WithMany("ClassSchedules")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Section");
 
-                    b.Navigation("SubjectTeacher");
+                    b.Navigation("Subject");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -820,11 +817,6 @@ namespace api.Migrations
                     b.Navigation("ClassSchedules");
 
                     b.Navigation("SubjectTeachers");
-                });
-
-            modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
-                {
-                    b.Navigation("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.User", b =>

@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250417145248_FixSubjectTeacherRelationshipPart2")]
-    partial class FixSubjectTeacherRelationshipPart2
+    [Migration("20250419085008_TimeOnlyToString")]
+    partial class TimeOnlyToString
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,8 +225,9 @@ namespace api.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("GracePeriod")
                         .HasColumnType("integer");
@@ -234,8 +235,9 @@ namespace api.Migrations
                     b.Property<int>("SectionId")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("SubjectId")
                         .HasColumnType("integer");
@@ -248,13 +250,14 @@ namespace api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SectionId");
-
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("ClassSchedule");
+                    b.HasIndex("SectionId", "SubjectId", "StartTime", "EndTime")
+                        .IsUnique();
+
+                    b.ToTable("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -464,27 +467,34 @@ namespace api.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
                 {
-                    b.Property<int>("SubjectId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<string>("TeacherId")
-                        .HasColumnType("text");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("SubjectId", "TeacherId");
+                    b.HasKey("Id");
 
                     b.HasIndex("TeacherId");
 

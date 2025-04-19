@@ -12,50 +12,51 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<SubjectTeacher> SubjectTeachers { get; set; }
     public DbSet<Section> Sections { get; set; }
+    public DbSet<ClassSchedule> ClassSchedules { get; set; }
+    public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
     public DbSet<TwoFactorAuth> TwoFactorAuths { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<SubjectTeacher>()
-            .HasKey(st => new { st.SubjectId, st.TeacherId });
+        // === User Config ===
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
-        modelBuilder.Entity<SubjectTeacher>()
-            .HasIndex(st => new { st.SubjectId, st.TeacherId })
-            .IsUnique(); // Ensures unique subject-teacher pairs
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Guardian)
+            .WithOne(g => g.Student)
+            .HasForeignKey<Guardian>(g => g.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SubjectTeacher>()
-            .HasOne(st => st.Subject)
-            .WithMany(s => s.SubjectTeachers)
-            .HasForeignKey(st => st.SubjectId)
-            .OnDelete(DeleteBehavior.Cascade); // Prevent orphan subject-teacher pairs
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Section)
+            .WithMany(s => s.Students)
+            .HasForeignKey(u => u.SectionId)
+            .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<SubjectTeacher>()
-            .HasOne(st => st.Teacher)
-            .WithMany(t => t.SubjectTeachers)
-            .HasForeignKey(st => st.TeacherId)
-            .OnDelete(DeleteBehavior.Cascade); // Prevent orphan subject-teacher pairs
+        // === Guardian Config ===
+        modelBuilder.Entity<Guardian>()
+            .HasKey(g => g.Id);
 
-
+        // === Course Config ===
         modelBuilder.Entity<Course>()
             .HasIndex(c => c.Code)
-            .IsUnique(); // ✅ Ensures unique course codes
+            .IsUnique();
+
         modelBuilder.Entity<Course>()
             .HasIndex(c => c.Name)
-            .IsUnique(); // ✅ Ensures unique course codes
+            .IsUnique();
+
         modelBuilder.Entity<Course>()
             .HasMany(c => c.Sections)
             .WithOne(s => s.Course)
             .HasForeignKey(s => s.CourseId)
-            .OnDelete(DeleteBehavior.Cascade); // ✅ Prevent orphan sections    
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Subject>()
-            .HasKey(s => s.Id); // ✅ Ensures unique subject IDs
-        modelBuilder.Entity<Subject>()
-            .HasIndex(s => s.Code)
-            .IsUnique(); // ✅  Ensures the subject code is unique
-
+        // === Section Config ===
         modelBuilder.Entity<Section>()
             .HasMany(s => s.Students)
             .WithOne(s => s.Section)
@@ -64,34 +65,59 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
         modelBuilder.Entity<Section>()
             .HasOne(s => s.Teacher)
-            .WithMany() // ✅ Allows multiple sections per teacher
+            .WithMany()
             .HasForeignKey(s => s.TeacherId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<ClassSchedule>()
-            .HasOne(cs => cs.Section)
-            .WithMany(s => s.ClassSchedules)
+        modelBuilder.Entity<Section>()
+            .HasMany(s => s.ClassSchedules)
+            .WithOne(cs => cs.Section)
             .HasForeignKey(cs => cs.SectionId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<ClassSchedule>()
-            .HasOne(cs => cs.Subject)
-            .WithMany(s => s.ClassSchedules)
-            .HasForeignKey(cs => cs.SubjectId)
-            .OnDelete(DeleteBehavior.Cascade); // ✅ Prevent orphan schedules
+        // === Subject Config ===
+        modelBuilder.Entity<Subject>()
+            .HasKey(s => s.Id);
 
-        modelBuilder.Entity<ClassSchedule>()
-            .HasOne(cs => cs.Teacher)
-            .WithMany(t => t.ClassSchedules)
-            .HasForeignKey(cs => cs.TeacherId)
-            .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Subject>()
+            .HasIndex(s => s.Code)
+            .IsUnique();
 
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Guardian)
-            .WithOne(g => g.Student)
-            .HasForeignKey<Guardian>(g => g.StudentId)
+        modelBuilder.Entity<Subject>()
+            .HasIndex(s => s.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<Subject>()
+            .HasMany(s => s.SubjectTeachers)
+            .WithOne(st => st.Subject)
+            .HasForeignKey(st => st.SubjectId);
+
+        // === SubjectTeacher Config ===
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasKey(st => st.Id);
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasIndex(st => new { st.SubjectId, st.TeacherId })
+            .IsUnique();
+
+        modelBuilder.Entity<SubjectTeacher>()
+            .HasOne(st => st.Teacher)
+            .WithMany(t => t.SubjectTeachers)
+            .HasForeignKey(st => st.TeacherId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // === ClassSchedule Config ===
+        modelBuilder.Entity<ClassSchedule>()
+            .HasIndex(cs => new { cs.SectionId, cs.SubjectTeacherId, cs.StartTime, cs.EndTime })
+            .IsUnique();
+
+        modelBuilder.Entity<ClassSchedule>()
+            .HasOne(cs => cs.SubjectTeacher)
+            .WithMany(st => st.ClassSchedules)
+            .HasForeignKey(cs => cs.SubjectTeacherId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // === AttendanceRecord Config ===
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(ar => ar.ClassSchedule)
             .WithMany()
@@ -102,27 +128,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasOne(ar => ar.Student)
             .WithMany(s => s.AttendanceRecords)
             .HasForeignKey(ar => ar.StudentId)
-            .OnDelete(DeleteBehavior.Cascade); // ✅ Prevent orphan records
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.ClassSchedules)
-            .WithOne(cs => cs.Teacher)
-            .HasForeignKey(cs => cs.TeacherId)
-            .OnDelete(DeleteBehavior.SetNull); // Prevents data loss when a teacher is removed
-
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Section)
-            .WithMany(s => s.Students)
-            .HasForeignKey(u => u.SectionId)
-            .OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique(); // Ensures only users have unique emails
-
+        // === TwoFactorAuth Config ===
         modelBuilder.Entity<TwoFactorAuth>()
             .HasIndex(t => t.Email)
-            .IsUnique(); // Ensures only one active 2FA code per user
+            .IsUnique();
     }
-
 }
-

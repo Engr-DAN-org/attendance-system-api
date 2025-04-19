@@ -51,6 +51,7 @@ builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<ISubjectTeacherRepository, SubjectTeacherRepository>();
 builder.Services.AddScoped<ITwoFactorRepository, TwoFactorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 

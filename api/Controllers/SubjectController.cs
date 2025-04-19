@@ -13,12 +13,13 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SubjectController(ISubjectRepository subjectRepository) : ControllerBase
+    public class SubjectController(ISubjectRepository subjectRepository, ILogger<SubjectController> logger) : ControllerBase
     {
+        private readonly ILogger<SubjectController> _logger = logger;
 
         private readonly ISubjectRepository _subjectRepository = subjectRepository;
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectDTO subjectDTO)
         {
             try
@@ -32,6 +33,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError("Error: {Exception}", e);
                 return StatusCode(500, new { message = e.Message });
             }
         }

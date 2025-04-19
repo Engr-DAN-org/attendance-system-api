@@ -9,4 +9,9 @@ namespace api.Models.QueryParams
     {
         public string? TeacherId { get; set; }
     }
+
+    public class SubjectTeacherQueryParams
+    {
+        public string? Name { get; set; }
+    }
 }
