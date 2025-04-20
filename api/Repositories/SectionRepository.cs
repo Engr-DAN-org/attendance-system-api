@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
@@ -18,17 +19,62 @@ namespace api.Repositories
 
         public async Task<Section> CreateSectionAsync(CreateSectionDTO createSectionDTO)
         {
-            var section = new Section()
+            try
             {
-                YearLevel = createSectionDTO.YearLevel,
-                Name = createSectionDTO.Name,
-                Description = createSectionDTO.Description,
-                TeacherId = createSectionDTO.TeacherId
-            };
+                await BeginTransactionAsync();
+                Console.WriteLine($"Creating Section with CourseId: {createSectionDTO.CourseId}");
+                var existingSection = await _context.Sections.FirstOrDefaultAsync(sec => sec.Name == createSectionDTO.Name && sec.YearLevel == createSectionDTO.YearLevel);
+                if (existingSection != null)
+                    throw new DuplicateNameException("Section already exists");
 
-            await _context.Sections.AddAsync(section);
-            await _context.SaveChangesAsync();
-            return section;
+                var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == createSectionDTO.CourseId) ?? throw new NotFoundException(nameof(Course));
+                Console.WriteLine($"Course found: {course.Name}, ID: {course.Id}");
+
+                createSectionDTO.CourseId = course.Id;
+                var section = await _context.Sections.AddAsync(createSectionDTO.ToSection());
+                await _context.SaveChangesAsync();
+
+                await _context.ClassSchedules.AddRangeAsync(createSectionDTO.ClassSchedules.Select(cs => cs.ToClassSchedule(section.Entity.Id)));
+                await _context.SaveChangesAsync();
+
+                await CommitTransactionAsync();
+                return section.Entity;
+            }
+            catch (System.Exception e)
+            {
+                await RollbackTransactionAsync();
+                Console.WriteLine($"Error: {e.Message}");
+                throw;
+            }
+        }
+
+        public async Task<Section> UpdateSectionAsync(int sectionId, CreateSectionDTO createSectionDTO)
+        {
+            try
+            {
+                await BeginTransactionAsync();
+                var section = await GetSectionByIdAsync(sectionId);
+
+                section.YearLevel = createSectionDTO.YearLevel;
+                section.Name = createSectionDTO.Name;
+                section.Description = createSectionDTO.Description;
+                section.TeacherId = createSectionDTO.TeacherId;
+
+                var classSchedules = await _context.ClassSchedules.Where(cs => cs.SectionId == sectionId).ToListAsync();
+                _context.ClassSchedules.RemoveRange(classSchedules);
+                await _context.SaveChangesAsync();
+
+                await _context.ClassSchedules.AddRangeAsync(createSectionDTO.ClassSchedules.Select(cs => cs.ToClassSchedule(sectionId)));
+                await _context.SaveChangesAsync();
+
+                await CommitTransactionAsync();
+                return section;
+            }
+            catch (System.Exception)
+            {
+                await RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task DeleteSectionAsync(int id)
@@ -58,7 +104,13 @@ namespace api.Repositories
 
         public Task<List<Section>> GetSectionsAsync()
         {
-            return _context.Sections.ToListAsync() ?? throw new NotFoundException(nameof(Section));
+            return _context.Sections.AsQueryable()
+            .Include(sec => sec.ClassSchedules)
+            .Include(sec => sec.Course)
+            .Include(sec => sec.Teacher)
+            .Include(sec => sec.Students)
+
+            .ToListAsync() ?? throw new NotFoundException(nameof(Section));
         }
 
         public async Task RollbackTransactionAsync()
@@ -76,25 +128,6 @@ namespace api.Repositories
         {
             await _context.Database.CommitTransactionAsync();
         }
-        public async Task<Section> UpdateSectionAsync(int sectionId, CreateSectionDTO createSectionDTO)
-        {
-            try
-            {
-                var section = await GetSectionByIdAsync(sectionId);
 
-                section.YearLevel = createSectionDTO.YearLevel;
-                section.Name = createSectionDTO.Name;
-                section.Description = createSectionDTO.Description;
-                section.TeacherId = createSectionDTO.TeacherId;
-
-                await _context.SaveChangesAsync();
-                return section;
-            }
-            catch (System.Exception)
-            {
-
-                throw;
-            }
-        }
     }
 }

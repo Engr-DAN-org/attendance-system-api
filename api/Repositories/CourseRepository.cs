@@ -71,7 +71,10 @@ namespace api.Repositories
                     query = query.Where(c => c.Name.ToLower().Contains(searchName) || c.Code.ToLower().Contains(searchName));
                 }
                 if (!string.IsNullOrEmpty(courseQuery.Code))
-                    query = query.Where(c => c.Code.Contains(courseQuery.Code, StringComparison.OrdinalIgnoreCase));
+                {
+                    var courseCode = courseQuery.Code.ToLower();
+                    query = query.Where(c => c.Code.ToLower().Contains(courseCode));
+                }
                 if (courseQuery.Years.HasValue)
                     query = query.Where(c => c.Years == courseQuery.Years.Value);
                 if (courseQuery.Sort == Enums.SortOrder.asc.ToString())

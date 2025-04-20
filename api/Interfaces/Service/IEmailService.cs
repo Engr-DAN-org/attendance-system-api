@@ -8,5 +8,5 @@ public interface IEmailService
     Task SendOTPEmailAsync(string toEmail, string body);
 
     Task SendAttendanceConfirmationEmailAsync(User student);
-    Task SendEmailConfirmationAsync(User user);
+    Task SendRegistrationCredentialsAsync(User user, string password);
 }

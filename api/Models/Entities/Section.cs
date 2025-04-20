@@ -15,9 +15,9 @@ public class Section
 
     public string? TeacherId { get; set; }
     public User? Teacher { get; set; }
-    public User[] Students { get; set; } = [];
+    public List<User> Students { get; set; } = [];
 
-    public ClassSchedule[] ClassSchedules { get; set; } = [];
+    public List<ClassSchedule> ClassSchedules { get; set; } = [];
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
     public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
 }

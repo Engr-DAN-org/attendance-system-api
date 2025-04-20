@@ -64,21 +64,31 @@ services:
       start_period: 10s
     restart: unless-stopped
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: "False" # Needed to allow loading servers.json
-    volumes:
-      - ./pgadmin-config/servers.json:/pgadmin4/servers.json
-      - ./pgadmin-config/pgpass:/var/lib/pgadmin/pgpass
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: "False" # Needed to allow loading servers.json
+  #   volumes:
+  #     - ./pgadmin-config/servers.json:/pgadmin4/servers.json
+  #     - ./pgadmin-config/pgpass:/var/lib/pgadmin/pgpass
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  
+  # http://localhost:8080/?pgsql=postgres-db&username=pgadmin&db=attendance-system&ns=public&select=AspNetUsers
+  adminer:
+    image: adminer
+    container_name: adminer
     ports:
-      - "8080:80"
+      - "8080:8080"
+    restart: unless-stopped
     depends_on:
       - db
-    restart: unless-stopped
 
 volumes:
   postgres_data:

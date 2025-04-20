@@ -1,15 +1,16 @@
 using System;
+using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 
 namespace api.Interfaces.Repository;
 
 public interface ISubjectRepository
 {
-    Task<Subject> GetSubjectByIdAsync(string id);
-    Task<Subject> GetSubjectByNameAsync(string name);
-    Task<Subject[]> GetSubjectsAsync();
-    Task<Subject> UpdateSubjectAsync(Subject subject);
-    Task<Subject> CreateSubjectAsync(Subject subject);
-    Task DeleteSubjectAsync(string id);
+    Task<GetSubjectDTO> GetSubjectByIdAsync(int id);
+    Task<SubjectQueryDTO> QuerySubjectsAsync(SubjectQueryParams queryParams);
+    Task<GetSubjectDTO> UpdateSubjectAsync(int id, CreateSubjectDTO subject);
+    Task<GetSubjectDTO> CreateSubjectAsync(CreateSubjectDTO subject);
+    Task DeleteSubjectAsync(int id);
 
 }

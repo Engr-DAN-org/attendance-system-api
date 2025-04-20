@@ -16,6 +16,7 @@ namespace api.Controllers
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly IUserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+
         [HttpGet]
         public async Task<IActionResult> GetUsers([FromQuery] UsersQueryParams queryParams)
         {
@@ -25,6 +26,26 @@ namespace api.Controllers
                 return Ok(users);
             }
             catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost("create")]
+        [Authorize(Policy = "RequireAdmin")]
+        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDTO userDTO)
+        {
+            try
+            {
+                var user = await _userService.RegisterAsync(userDTO);
+                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            }
+            catch (DuplicateNameException e)
+            {
+                return Conflict(new { message = e.Message });
+            }
+            catch (System.Exception e)
             {
                 return StatusCode(500, e.Message);
             }
@@ -51,6 +72,46 @@ namespace api.Controllers
             }
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] RegisterUserDTO userDTO)
+        {
+            try
+            {
+                var user = await _userService.UpdateCredentialsAsync(id, userDTO);
+                return Ok(user);
+            }
+            catch (DuplicateNameException e)
+            {
+                return Conflict(new { message = e.Message });
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            try
+            {
+                var user = await _userRepository.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
         [HttpGet("verify-email/{id}")]
         public async Task<IActionResult> InitializeVerification(string id)
         {
@@ -70,24 +131,6 @@ namespace api.Controllers
             }
         }
 
-        [HttpPost("create")]
-        [Authorize(Policy = "RequireAdmin")]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDTO userDTO)
-        {
-            try
-            {
-                var user = await _userService.RegisterAsync(userDTO);
-                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
-            }
-            catch (DuplicateNameException e)
-            {
-                return Conflict(new { message = e.Message });
-            }
-            catch (System.Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
 
         // [Authorize(Policy = "RequireAdmin")]
         // public async Task<IActionResult> CreateStudent([FromBody] CreateUserDTO createUserDTO)

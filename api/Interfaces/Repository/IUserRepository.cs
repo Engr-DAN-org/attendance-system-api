@@ -13,12 +13,12 @@ public interface IUserRepository
     public Task<User> FindByIdAsync(string id);
     public Task<User> FindBySchoolIdNoAsync(string id);
 
-    Task<bool> IsIdNumberUsedAsync(string idNumber);
-    Task<bool> IsEmailUsedAsync(string email);
+    Task<bool> IsIdNumberUsedAsync(string idNumber, User? user = null);
+    Task<bool> IsEmailUsedAsync(string email, User? user = null);
 
     public Task<UsersQueryDTO> GetUsersAsync(UsersQueryParams userQueryDTO);
     public Task<User> UpdateUserAsync(User user);
-    public Task<User> CreateUserAsync(RegisterUserDTO user);
+    public Task<User> CreateUserAsync(RegisterUserDTO user, string password);
     public Task<User> DeleteUserAsync(string id);
 
     Task BeginTransactionAsync();

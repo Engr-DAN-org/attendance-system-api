@@ -39,27 +39,34 @@ namespace api.Services
             }
         }
 
-        public async Task SendEmailConfirmationAsync(User student)
+        public async Task SendRegistrationCredentialsAsync(User student, string password)
         {
             var DateTime = DateTimeUtils.DateTimeNowFormattedString();
             var appUrl = VariableParser.GetEnvString("VITE_APP_URL");
-            var route = $"{appUrl}/verify-email/{student.Id}";
+            var route = $"{appUrl}/sign-in";
+
             if (student.Email != null)
             {
                 var subject = "Student's First Login";
                 var body = $@"
-                        <p>Hello <strong>{student.FirstName}</strong>,</p>
-                        <p>Welcome aboard! 🎉 You're just one step away from completing your account setup.</p>
-                        <p>Please complete your registration by clicking the link below:</p>
-                        <p>
-                            <a href='{route}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>
-                                Complete Registration
-                            </a>
-                        </p>
-                        <p>This link will expire on <strong>{DateTime}</strong>.</p>
-                        <p>If you did not request this registration, please ignore this message.</p>
-                        <br>
-                        ";
+                    <p>Hello <strong>{student.FirstName}</strong>,</p>
+                    <p>Welcome aboard! 🎉 You're now ready to log in to your account.</p>
+                    <p>Your login credentials are as follows:</p>
+                    <ul>
+                        <li><strong>ID Number:</strong> {student.IdNumber}</li>
+                        <li><strong>Password:</strong> {password}</li>
+                    </ul>
+                    <p>You can log in by clicking the link below:</p>
+                    <p>
+                        <a href='{route}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>
+                            Sign In to Your Account
+                        </a>
+                    </p>
+                    <p>We recommend to change your password after successful login.</p>
+                    <br>
+                    <p>If you did not request this registration, please ignore this message.</p>
+                    <br>
+                    ";
 
                 await SendEmailAsync(student.Email, subject, body);
             }
@@ -116,7 +123,5 @@ namespace api.Services
                 throw;
             }
         }
-
-
     }
 }

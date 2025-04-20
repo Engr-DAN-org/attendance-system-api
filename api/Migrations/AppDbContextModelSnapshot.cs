@@ -205,7 +205,7 @@ namespace api.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("AttendanceRecord");
+                    b.ToTable("AttendanceRecords");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
@@ -222,8 +222,9 @@ namespace api.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("GracePeriod")
                         .HasColumnType("integer");
@@ -231,28 +232,34 @@ namespace api.Migrations
                     b.Property<int>("SectionId")
                         .HasColumnType("integer");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<string>("SubjectId")
+                    b.Property<string>("StartTime")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TeacherId")
-                        .HasColumnType("text");
+                    b.Property<int?>("SubjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubjectTeacherId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.HasIndex("SectionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("SubjectId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("SubjectTeacherId");
 
-                    b.ToTable("ClassSchedule");
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("SectionId", "SubjectTeacherId", "StartTime", "EndTime")
+                        .IsUnique();
+
+                    b.ToTable("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -433,7 +440,14 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Entities.Subject", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -443,9 +457,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -453,9 +464,46 @@ namespace api.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.HasIndex("SubjectId", "TeacherId")
+                        .IsUnique();
+
+                    b.ToTable("SubjectTeachers");
                 });
 
             modelBuilder.Entity("api.Models.Entities.TwoFactorAuth", b =>
@@ -659,22 +707,23 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.Subject", "Subject")
+                    b.HasOne("api.Models.Entities.Subject", null)
                         .WithMany("ClassSchedules")
-                        .HasForeignKey("SubjectId")
+                        .HasForeignKey("SubjectId");
+
+                    b.HasOne("api.Models.Entities.SubjectTeacher", "SubjectTeacher")
+                        .WithMany("ClassSchedules")
+                        .HasForeignKey("SubjectTeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.User", "Teacher")
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany("ClassSchedules")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Section");
 
-                    b.Navigation("Subject");
-
-                    b.Navigation("Teacher");
+                    b.Navigation("SubjectTeacher");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -725,12 +774,31 @@ namespace api.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
+                {
+                    b.HasOne("api.Models.Entities.Subject", "Subject")
+                        .WithMany("SubjectTeachers")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Entities.User", "Teacher")
+                        .WithMany("SubjectTeachers")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("Teacher");
+                });
+
             modelBuilder.Entity("api.Models.Entities.User", b =>
                 {
                     b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("Students")
                         .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Section");
                 });
@@ -750,6 +818,13 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.Entities.Subject", b =>
                 {
                     b.Navigation("ClassSchedules");
+
+                    b.Navigation("SubjectTeachers");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
+                {
+                    b.Navigation("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.User", b =>
@@ -761,6 +836,8 @@ namespace api.Migrations
                     b.Navigation("ClassSessions");
 
                     b.Navigation("Guardian");
+
+                    b.Navigation("SubjectTeachers");
                 });
 #pragma warning restore 612, 618
         }

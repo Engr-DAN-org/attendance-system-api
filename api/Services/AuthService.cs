@@ -37,13 +37,9 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             if (string.IsNullOrEmpty(user.Email))
                 throw new ArgumentException("User Email required for Two-Factor Authentication is not set. Please contact the Administrator.");
 
-            if (user.EmailConfirmed == false)
-                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.EmailInactive };
 
             if (user == null || user.PasswordHash == null || !CredentialUtils.VerifyPassword(loginDTO.Password, user.PasswordHash))
                 return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
-
-
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
             await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
@@ -73,10 +69,14 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             if (twoFactorEntry.IsExpired)
                 return new AuthResponseDTO { ResponseType = AuthResponseType.ExpiredOTP };
 
-            // Delete the 2FA code to prevent reuse
+            if (user.EmailConfirmed == false)
+            { // If First time login, set the email as confirmed
+                user.EmailConfirmed = true;
+                await _userRepository.UpdateUserAsync(user);
+            }
 
             var authToken = new TokenGenerator().GenerateAuthToken(user);
-
+            // Delete the 2FA code to prevent reuse
             await _twoFactorRepository.DeleteAsync(twoFactorEntry);
 
             await transaction.CommitAsync();
@@ -106,36 +106,36 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         throw new NotImplementedException();
     }
 
-    public async Task<AuthResponseDTO> VerifyEmailAsync(VerifyEmailDTO verifyEmailDTO)
-    {
-        try
-        {
-            await _userRepository.BeginTransactionAsync();
-            var user = await _userRepository.FindByIdAsync(verifyEmailDTO.Id);
-            if (user.EmailConfirmed == true) throw new InvalidOperationException("User is already verified. Please proceed to the login page.");
+    // public async Task<AuthResponseDTO> VerifyEmailAsync(VerifyEmailDTO verifyEmailDTO)
+    // {
+    //     try
+    //     {
+    //         await _userRepository.BeginTransactionAsync();
+    //         var user = await _userRepository.FindByIdAsync(verifyEmailDTO.Id);
+    //         if (user.EmailConfirmed == true) throw new InvalidOperationException("User is already verified. Please proceed to the login page.");
 
-            user.EmailConfirmed = true;
-            // user.Status = UserStatus.Active;
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(verifyEmailDTO.Password);
+    //         user.EmailConfirmed = true;
+    //         // user.Status = UserStatus.Active;
+    //         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(verifyEmailDTO.Password);
 
-            var authToken = new TokenGenerator().GenerateAuthToken(user);
+    //         var authToken = new TokenGenerator().GenerateAuthToken(user);
 
-            await _userRepository.UpdateUserAsync(user);
-            await _userRepository.CommitTransactionAsync();
-            return new AuthResponseDTO
-            {
-                Token = authToken,
-                Expiry = DateTime.UtcNow.AddHours(1),
-                User = new AuthUserDTO(user),
-            };
-        }
-        catch (Exception)
-        {
-            await _userRepository.RollbackTransactionAsync();
-            throw;
-        }
+    //         await _userRepository.UpdateUserAsync(user);
+    //         await _userRepository.CommitTransactionAsync();
+    //         return new AuthResponseDTO
+    //         {
+    //             Token = authToken,
+    //             Expiry = DateTime.UtcNow.AddHours(1),
+    //             User = new AuthUserDTO(user),
+    //         };
+    //     }
+    //     catch (Exception)
+    //     {
+    //         await _userRepository.RollbackTransactionAsync();
+    //         throw;
+    //     }
 
-    }
+    // }
 
     public async Task<GetProfileDTO> GetProfileAsync(string userId)
     {
