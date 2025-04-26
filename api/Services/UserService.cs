@@ -73,6 +73,7 @@ namespace api.Services
                 user.IdNumber = registerDTO.IdNumber;
                 user.Email = registerDTO.Email;
                 user.PhoneNumber = registerDTO.PhoneNumber;
+                user.SectionId = registerDTO.SectionId;
                 await _userRepo.UpdateUserAsync(user);
 
                 if (registerDTO.Guardian != null)

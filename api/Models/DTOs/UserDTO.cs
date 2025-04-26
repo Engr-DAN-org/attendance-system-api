@@ -15,6 +15,14 @@ public class AuthUserDTO(User user)
     public string? PhoneNumber { get; set; } = user.PhoneNumber;
     public string Role { get; set; } = user.Role;
     public UserStatus Status { get; set; } = user.Status;
+
+    public int? SectionId { get; set; } = user.SectionId;
+    public int? GuardianId { get; set; } = user.GuardianId;
+
+    //Relations
+    public GetGuardianDTO? Guardian { get; set; } = user.Guardian != null ? new GetGuardianDTO(user.Guardian) : null;
+    public GetSectionDTO? Section { get; set; } = user.Section != null ? new GetSectionDTO(user.Section, false) : null;
+
 }
 
 public class RegisterTeacherDTO
@@ -35,6 +43,7 @@ public class RegisterUserDTO
     public required string LastName { get; set; }
     public UserRole UserRole { get; set; } = UserRole.Student;
     public string? PhoneNumber { get; set; }
+    public int? SectionId { get; set; }
     public CreateGuardianDTO? Guardian { get; set; }
 }
 

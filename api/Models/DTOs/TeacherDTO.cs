@@ -17,14 +17,14 @@ namespace api.Models.DTOs
         public UserRole UserRole { get; } = UserRole.Teacher;
     }
 
-    public class GetTeacherDTO(User user)
+    public class GetTeacherDTO(User user, bool withRelation = true)
     {
         public string IdNumber { get; set; } = user.IdNumber;
         public string Email { get; set; } = user.Email ?? "";
         public string FullName { get; set; } = user.FullName;
         public string Role { get; set; } = user.Role;
-        public List<ClassSchedule> ClassSchedules { get; set; } = user.ClassSchedules;
-        public List<ClassSession> ClassSessions { get; set; } = user.ClassSessions;
+        public List<ClassSchedule> ClassSchedules { get; set; } = withRelation ? user.ClassSchedules : [];
+        public List<ClassSession> ClassSessions { get; set; } = withRelation ? user.ClassSessions : [];
 
     }
 

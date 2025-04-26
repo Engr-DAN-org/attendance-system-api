@@ -6,7 +6,7 @@ using api.Models.Entities;
 
 namespace api.Models.DTOs
 {
-    public class GetSubjectDTO(Subject subject)
+    public class GetSubjectDTO(Subject subject, bool withRelation = true)
     {
         public int Id { get; set; } = subject.Id;
         public string Code { get; set; } = subject.Code;
@@ -14,7 +14,7 @@ namespace api.Models.DTOs
         public string? Description { get; set; } = subject.Description;
 
         // public List<ClassSchedule> ClassSchedules { get; set; } = subject.ClassSchedules.ToList();
-        public List<GetSubjectTeacherDTO> SubjectTeachers { get; set; } = [.. subject.SubjectTeachers.Select(st => new GetSubjectTeacherDTO(st))];
+        public List<GetSubjectTeacherDTO> SubjectTeachers { get; set; } = withRelation ? [.. subject.SubjectTeachers.Select(st => new GetSubjectTeacherDTO(st))] : [];
     }
 
     public class CreateSubjectDTO

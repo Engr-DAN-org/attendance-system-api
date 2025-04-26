@@ -8,6 +8,7 @@ using api.Exceptions;
 using api.Interfaces.Repository;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories
@@ -94,7 +95,13 @@ namespace api.Repositories
 
         public async Task<Section> GetSectionByIdAsync(int id)
         {
-            return await _context.Sections.FirstOrDefaultAsync(sec => sec.Id == id) ?? throw new NotFoundException(nameof(Section));
+            return await _context.Sections
+                .Include(sec => sec.ClassSchedules)
+                .ThenInclude(cs => cs.SubjectTeacher)
+                .ThenInclude(st => st.Subject)
+                .Include(sec => sec.Course)
+                .Include(sec => sec.Students)
+                .FirstOrDefaultAsync(sec => sec.Id == id) ?? throw new NotFoundException(nameof(Section));
         }
 
         public async Task<List<Section>> GetSectionByTeacherIdAsync(string id)
@@ -102,15 +109,21 @@ namespace api.Repositories
             return await _context.Sections.Where(sec => sec.TeacherId == id).ToListAsync() ?? throw new NotFoundException(nameof(Section));
         }
 
-        public Task<List<Section>> GetSectionsAsync()
+        public async Task<SectionQueryDTO> GetSectionsAsync(SectionQueryParams queryParams)
         {
-            return _context.Sections.AsQueryable()
-            .Include(sec => sec.ClassSchedules)
-            .Include(sec => sec.Course)
-            .Include(sec => sec.Teacher)
-            .Include(sec => sec.Students)
+            var sections = _context.Sections.AsQueryable();
 
-            .ToListAsync() ?? throw new NotFoundException(nameof(Section));
+            var totalCount = sections.Count();
+            var totalPages = (int)Math.Ceiling((double)totalCount / queryParams.PageSize);
+            var data = await sections.Skip((queryParams.Page - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize)
+                .Include(sec => sec.ClassSchedules)
+                .Include(sec => sec.Course)
+                .Include(sec => sec.Teacher)
+                .Include(sec => sec.Students)
+                .ToListAsync();
+
+            return new SectionQueryDTO(totalCount, totalPages, queryParams.Page, queryParams.PageSize, data);
         }
 
         public async Task RollbackTransactionAsync()

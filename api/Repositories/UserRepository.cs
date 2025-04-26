@@ -114,6 +114,8 @@ public class UserRepository(AppDbContext context) : IUserRepository
             var data = await query
                 .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
                 .Take(queryParams.PageSize)
+                .Include(u => u.Section)
+                .Include(u => u.Guardian)
                 .ToListAsync();
 
             return new UsersQueryDTO(totalCount, totalPages, queryParams.PageNumber, queryParams.PageSize, data);

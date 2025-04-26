@@ -7,6 +7,7 @@ using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 
 namespace api.Services
 {
@@ -54,12 +55,11 @@ namespace api.Services
             }
         }
 
-        public async Task<List<GetSectionDTO>> GetSectionsAsync()
+        public async Task<SectionQueryDTO> GetSectionsAsync(SectionQueryParams queryParams)
         {
             try
             {
-                var sections = await _sectionRepository.GetSectionsAsync();
-                return [.. sections.Select(section => new GetSectionDTO(section))];
+                return await _sectionRepository.GetSectionsAsync(queryParams);
             }
             catch (Exception)
             {
