@@ -9,6 +9,7 @@ using api.Repositories;
 using api.Services;
 using api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Converters;
@@ -64,6 +65,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+
+// Authorization Handlers Dependency Injection
+builder.Services.AddSingleton<IAuthorizationHandler, OwnerOrAdminHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, OwnerOrRoleHandler>();
 
 // ✅ Configure Brevo SMTP Email Service
 if (env.IsDevelopment())

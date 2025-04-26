@@ -34,17 +34,23 @@ public class OwnerOrRoleHandler(ILogger<OwnerOrRoleHandler> logger) : Authorizat
             var userId = userIdClaim.Value;
 
             // Get the resource being accessed
-            if (context.Resource is HttpContext httpContext && httpContext.Request.RouteValues.TryGetValue("id", out var routeValue))
+            if (context.Resource is HttpContext httpContext)
             {
-                var requestedUserId = routeValue?.ToString();
-                _logger.LogInformation("Requested user ID: {RequestedUserId}", requestedUserId);
+                httpContext.Request.RouteValues.TryGetValue("id", out var routeValue1);
+                httpContext.Request.RouteValues.TryGetValue("Id", out var routeValue2);
 
-                if (requestedUserId == userId)
+                if (routeValue1 != null || routeValue2 != null)
                 {
-                    // User is accessing their own data -> Grant access
-                    _logger.LogInformation("Access granted: User is accessing their own data");
-                    context.Succeed(requirement);
-                    return Task.CompletedTask;
+                    var requestedUserId = routeValue1?.ToString() ?? routeValue2?.ToString();
+                    _logger.LogInformation("Requested user ID: {RequestedUserId}", requestedUserId);
+
+                    if (requestedUserId == userId)
+                    {
+                        // User is accessing their own data -> Grant access
+                        _logger.LogInformation("Access granted: User is accessing their own data");
+                        context.Succeed(requirement);
+                        return Task.CompletedTask;
+                    }
                 }
             }
         }

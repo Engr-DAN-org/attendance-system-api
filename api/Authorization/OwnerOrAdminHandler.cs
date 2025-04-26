@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace api.Authorization;
 
-public class RequireSelfOrAdminHandler : AuthorizationHandler<OwnerOrAdminRequirement>
+public class OwnerOrAdminHandler : AuthorizationHandler<OwnerOrAdminRequirement>
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, OwnerOrAdminRequirement requirement)
     {
