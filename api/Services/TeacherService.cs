@@ -2,83 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Data;
 using api.Enums;
 using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
 {
-    public class TeacherService(IUserRepository userRepository) : ITeacherService
+    public class TeacherService(AppDbContext context) : ITeacherService
     {
-        private readonly IUserRepository _userRepository = userRepository;
+        private readonly AppDbContext _context = context;
 
-        public async Task<GetTeacherDTO> CreateTeacherAsync(CreateTeacherDTO teacher)
+        public async Task<List<GetClassScheduleDTO>> GetClassSchedulesAsync(string teacherId)
         {
-            throw new NotImplementedException("This method is not implemented yet.");
-            // var user = new User()
-            // {
-            //     IdNumber = teacher.IdNumber,
-            //     FirstName = teacher.FirstName,
-            //     LastName = teacher.LastName,
-            //     Email = teacher.Email,
-            //     UserRole = UserRole.Teacher
-            // };
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            var data = await _context.ClassSchedules
+                 .Include(cs => cs.SubjectTeacher)
+                 .ThenInclude(st => st.Subject)
+                 .Include(cs => cs.Section)
+                 .ThenInclude(s => s.Course)
+                 .Where(cs => cs.SubjectTeacher != null && cs.SubjectTeacher.TeacherId == teacherId)
+                 .ToListAsync();
 
-            // var createdUser = await _userRepository.CreateUserAsync(user);
-
-            // return new GetTeacherDTO(createdUser);
+            return [.. data.Select(cs => new GetClassScheduleDTO(cs))];
         }
-
-        public async Task<GetTeacherDTO> UpdateTeacherAsync(UpdateTeacherDTO teacher)
-        {
-            var user = new User
-            {
-                IdNumber = teacher.IdNumber,
-                FirstName = teacher.FirstName,
-                LastName = teacher.LastName,
-                Email = teacher.Email,
-            };
-
-            var updatedUser = await _userRepository.UpdateUserAsync(user);
-
-            return new GetTeacherDTO(updatedUser);
-        }
-
-        public async Task DeleteTeacherAsync(string id)
-        {
-            await _userRepository.DeleteUserAsync(id);
-        }
-
-        public async Task<GetTeacherDTO?> GetTeacherByIdAsync(string id)
-        {
-            var user = await _userRepository.FindByIdAsync(id);
-
-            if (user == null || user.UserRole != UserRole.Teacher)
-            {
-                return null;
-            }
-
-            return new GetTeacherDTO(user);
-        }
-
-        // public async Task<List<GetTeacherDTO>> GetTeachersAsync(int page, TeacherQueryDTO teacherQueryDTO)
-        // {
-
-        //     return await _userRepository.GetUsersAsync<GetTeacherDTO>(UserRole.Teacher, page, queryCallback: query =>
-        //         {
-        //             if (!string.IsNullOrEmpty(teacherQueryDTO.Name)) // Filter by Name if provided
-        //                 query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Name, StringComparison.OrdinalIgnoreCase));
-        //             if (!string.IsNullOrEmpty(teacherQueryDTO.IdNumber))
-        //                 query = query.Where(u => u.IdNumber == teacherQueryDTO.IdNumber);
-        //             if (!string.IsNullOrEmpty(teacherQueryDTO.Email))
-        //                 query = query.Where(u => u.FullName.Contains(teacherQueryDTO.Email, StringComparison.OrdinalIgnoreCase));
-        //         }, selectCallback: query =>
-        //         {
-        //             return query.Select(u => new GetTeacherDTO(u));
-        //         });
-        // }
-
     }
 }

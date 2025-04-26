@@ -15,6 +15,22 @@ namespace api.Controllers
     {
         private readonly ITeacherService _teacherService = teacherService;
 
+        [HttpGet("class-schedules/{teacherId}")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+        public async Task<IActionResult> GetClassSchedules(string teacherId)
+        {
+            try
+            {
+                var classSchedules = await _teacherService.GetClassSchedulesAsync(teacherId);
+                return Ok(classSchedules);
+            }
+            catch (System.Exception e)
+            {
+
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
         // [HttpGet("students")]
         // [Authorize(Policy = "RequireTeacherOrAdmin")]
         // public async Task<IActionResult> GetStudents([FromQuery] StudentQueryDTO studentQueryDTO)

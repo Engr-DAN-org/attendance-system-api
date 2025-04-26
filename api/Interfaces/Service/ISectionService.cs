@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models.DTOs;
+using api.Models.QueryParams;
 
 namespace api.Interfaces.Service
 {
@@ -11,7 +12,7 @@ namespace api.Interfaces.Service
         public Task<GetSectionDTO> CreateSectionAsync(CreateSectionDTO section);
         public Task<GetSectionDTO> UpdateSectionAsync(int sectionId, CreateSectionDTO section);
 
-        public Task<List<GetSectionDTO>> GetSectionsAsync();
+        public Task<SectionQueryDTO> GetSectionsAsync(SectionQueryParams queryParams);
 
         public Task DeleteSectionAsync(int sectionId);
         public Task<GetSectionDTO> GetSectionByIdAsync(int sectionId);

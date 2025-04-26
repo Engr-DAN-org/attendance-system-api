@@ -9,11 +9,6 @@ namespace api.Interfaces.Service
 {
     public interface ITeacherService
     {
-        public Task<GetTeacherDTO> CreateTeacherAsync(CreateTeacherDTO teacher);
-        public Task<GetTeacherDTO> UpdateTeacherAsync(UpdateTeacherDTO teacher);
-        public Task DeleteTeacherAsync(string id);
-        public Task<GetTeacherDTO?> GetTeacherByIdAsync(string id);
-        // public Task<List<GetTeacherDTO>> GetTeachersAsync(int page, TeacherQueryDTO teacherQueryDTO);
-
+        public Task<List<GetClassScheduleDTO>> GetClassSchedulesAsync(string teacherId);
     }
 }

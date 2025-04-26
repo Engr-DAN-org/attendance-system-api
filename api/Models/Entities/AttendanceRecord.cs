@@ -32,7 +32,7 @@ public class AttendanceRecord
     // 🧠 Logic
     public bool IsLate()
     {
-        if (TimeOnly.TryParse(ClassSchedule.StartTime, out var startTime))
+        if (TimeOnly.TryParse(ClassSchedule?.StartTime, out var startTime))
         {
             var allowedTime = startTime.AddMinutes(ClassSchedule.GracePeriod);
             return TimeIn > allowedTime;
@@ -45,10 +45,10 @@ public class AttendanceRecord
     public bool IsOverRidden() => CreatedAt != UpdatedAt;
 
     // 🧾 Display helpers
-    public string StudentName => Student.FullName;
-    public string SubjectName => ClassSchedule.Subject.Name;
-    public string SectionName => ClassSchedule.Section.Name;
-    public string Teacher => ClassSchedule.Teacher?.FullName ?? "N/A";
+    public string StudentName => Student?.FullName ?? "Deleted Student";
+    public string SubjectName => ClassSchedule?.Subject?.Name ?? "Deleted Subject";
+    public string SectionName => ClassSchedule?.Section?.Name ?? "Deleted Section";
+    public string Teacher => ClassSchedule?.Teacher?.FullName ?? "N/A";
 
     // 📏 Distance calculation
     private static double HaversineDistance(double lat1, double lon1, double lat2, double lon2)

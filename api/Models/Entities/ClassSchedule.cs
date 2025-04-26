@@ -21,7 +21,9 @@ public class ClassSchedule
     public required int SubjectTeacherId { get; set; }
     //Relationships
     public Section? Section { get; set; }
+    public SubjectTeacher? SubjectTeacher { get; set; }
+
+    // Additional properties for display purposes
     public Subject? Subject => SubjectTeacher?.Subject;
     public User? Teacher => SubjectTeacher?.Teacher;
-    public SubjectTeacher? SubjectTeacher { get; set; }
 }

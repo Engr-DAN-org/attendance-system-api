@@ -27,6 +27,8 @@ public class UpdateGuardianDTO
 
 public class GetGuardianDTO(Guardian guardian)
 {
+    public string FirstName { get; set; } = guardian.FirstName;
+    public string LastName { get; set; } = guardian.LastName;
     public string FullName { get; set; } = $"{guardian.FirstName} {guardian.LastName}";
     public string Email { get; set; } = guardian.Email;
     public string? ContactNumber { get; set; } = guardian.ContactNumber;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.Exceptions;
 using api.Interfaces.Service;
 using api.Models.DTOs;
+using api.Models.QueryParams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,11 +19,11 @@ namespace api.Controllers
 
         [HttpGet]
         // [Authorize(Policy = "RequireTeacherOrAdmin")]
-        public async Task<IActionResult> GetSections()
+        public async Task<IActionResult> GetSections([FromQuery] SectionQueryParams queryParams)
         {
             try
             {
-                var sections = await _sectionService.GetSectionsAsync();
+                var sections = await _sectionService.GetSectionsAsync(queryParams);
                 return Ok(sections);
             }
             catch (Exception e)
