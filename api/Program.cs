@@ -47,7 +47,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddOptions();
 
 // Repository Dependency Injection
-// builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
+builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
 builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();

@@ -1,15 +1,17 @@
 using System;
-
+using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 
 namespace api.Interfaces.Repository;
 
 public interface IClassScheduleRepository
 {
+    public Task<List<GetClassScheduleDTO>> QueryAsync(ClassScheduleQueryParams queryParams);
 
-    public Task<ClassSchedule[]> GetScheduleBySectionIdAsync(string sectionId);
-    public Task<ClassSchedule> GetScheduleByIdAsync(string id);
-    public Task<ClassSchedule> UpdateScheduleAsync(ClassSchedule schedule);
-    public Task<ClassSchedule> CreateScheduleAsync(ClassSchedule schedule);
-    public Task<ClassSchedule> DeleteScheduleAsync(string id);
+    public Task<List<GetClassScheduleDTO>> GetBySectionOrTeacherAsync(ScheduleTeacherSectionQuery queryParams);
+    public Task<ClassSchedule> GetScheduleByIdAsync(int id);
+    public Task<GetClassScheduleDTO> UpdateScheduleAsync(int id, CreateClassScheduleDTO scheduleDTO);
+    public Task<GetClassScheduleDTO> CreateScheduleAsync(CreateClassScheduleDTO scheduleDTO);
+    public Task DeleteScheduleAsync(int id);
 }

@@ -47,9 +47,21 @@ namespace api.Repositories
                     )
                 );
             }
+            if (!string.IsNullOrEmpty(queryParams.TeacherId))
+            {
+                query = query.Where(st => st.TeacherId == queryParams.TeacherId);
+            }
+            if (queryParams.SubjectId.HasValue)
+            {
+                query = query.Where(st => st.SubjectId == queryParams.SubjectId);
+            }
+            if (queryParams.Limit is > 0)
+            {
+                query = query.Take(queryParams.Limit.Value);
+            }
+
 
             return await query
-                .Take(10)
                 .Select(st => new GetSubjectTeacherDTO(st))
                 .ToListAsync();
         }

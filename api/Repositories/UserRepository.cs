@@ -67,9 +67,16 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
     public async Task<User> FindByIdAsync(string id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id) ?? throw new NotFoundException(nameof(User));
+        return await _context.Users
+            .Include(u => u.Guardian)
+            .Include(u => u.ClassSessions)
+            .Include(u => u.SubjectTeachers)
+                .ThenInclude(st => st.ClassSchedules)
+            .Include(u => u.SubjectTeachers)
+                .ThenInclude(st => st.Subject)
+            .FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new NotFoundException(nameof(User));
     }
-
 
     public async Task<User> FindBySchoolIdNoAsync(string schoolId)
     {

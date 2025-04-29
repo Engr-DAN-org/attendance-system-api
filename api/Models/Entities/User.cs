@@ -29,12 +29,13 @@ public class User : IdentityUser
 
     // ✅ Only Teachers can have Class Schedules
     public List<SubjectTeacher> SubjectTeachers { get; set; } = [];
-    public List<ClassSchedule> ClassSchedules { get; set; } = [];
     public List<ClassSession> ClassSessions { get; set; } = [];
 
     public string FullName => $"{FirstName} {LastName}";
     public string Role => UserRole.ToString();
 
     public UserStatus Status => EmailConfirmed == true ? UserStatus.Active : UserStatus.Inactive;
+    public List<ClassSchedule> ClassSchedules => [.. SubjectTeachers.SelectMany(st => st.ClassSchedules)];
+
 
 }

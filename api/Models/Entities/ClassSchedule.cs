@@ -17,7 +17,7 @@ public class ClassSchedule
 
 
     /// Foreign Keys
-    public required int SectionId { get; set; }
+    public int? SectionId { get; set; }
     public required int SubjectTeacherId { get; set; }
     //Relationships
     public Section? Section { get; set; }

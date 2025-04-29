@@ -59,7 +59,8 @@ namespace api.Controllers
             try
             {
                 var user = await _userRepository.FindByIdAsync(id);
-                return Ok(user);
+                var userDTO = new AuthUserDTO(user);
+                return Ok(userDTO);
             }
             catch (NotFoundException)
             {
@@ -67,7 +68,6 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
-
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -118,6 +118,7 @@ namespace api.Controllers
             try
             {
                 var user = await _userRepository.FindByIdAsync(id);
+                var userDTO = new AuthUserDTO(user);
                 if (user.EmailConfirmed == true) return BadRequest(new { message = "Email is Already Verified. Proceed to the Login Page." });
                 return Ok(user);
             }
