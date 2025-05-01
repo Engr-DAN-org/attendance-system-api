@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250419085008_TimeOnlyToString")]
-    partial class TimeOnlyToString
+    [Migration("20250501094350_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -208,7 +208,7 @@ namespace api.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("AttendanceRecord");
+                    b.ToTable("AttendanceRecords");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
@@ -232,29 +232,34 @@ namespace api.Migrations
                     b.Property<int>("GracePeriod")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("integer");
 
                     b.Property<string>("StartTime")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("SubjectId")
+                    b.Property<int?>("SubjectId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("TeacherId")
-                        .HasColumnType("text");
+                    b.Property<int>("SubjectTeacherId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SubjectId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("SubjectTeacherId");
 
-                    b.HasIndex("SectionId", "SubjectId", "StartTime", "EndTime")
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("SectionId", "SubjectTeacherId", "StartTime", "EndTime")
                         .IsUnique();
 
                     b.ToTable("ClassSchedules");
@@ -702,25 +707,25 @@ namespace api.Migrations
                     b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("ClassSchedules")
                         .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("api.Models.Entities.Subject", null)
+                        .WithMany("ClassSchedules")
+                        .HasForeignKey("SubjectId");
+
+                    b.HasOne("api.Models.Entities.SubjectTeacher", "SubjectTeacher")
+                        .WithMany("ClassSchedules")
+                        .HasForeignKey("SubjectTeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.Subject", "Subject")
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany("ClassSchedules")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Entities.User", "Teacher")
-                        .WithMany("ClassSchedules")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Section");
 
-                    b.Navigation("Subject");
-
-                    b.Navigation("Teacher");
+                    b.Navigation("SubjectTeacher");
                 });
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
@@ -795,7 +800,7 @@ namespace api.Migrations
                     b.HasOne("api.Models.Entities.Section", "Section")
                         .WithMany("Students")
                         .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Section");
                 });
@@ -817,6 +822,11 @@ namespace api.Migrations
                     b.Navigation("ClassSchedules");
 
                     b.Navigation("SubjectTeachers");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.SubjectTeacher", b =>
+                {
+                    b.Navigation("ClassSchedules");
                 });
 
             modelBuilder.Entity("api.Models.Entities.User", b =>

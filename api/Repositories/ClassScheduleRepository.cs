@@ -25,12 +25,19 @@ namespace api.Repositories
 
 
 
-        public async Task<ClassSchedule> GetScheduleByIdAsync(int id)
+        public async Task<ClassSchedule> GetScheduleByIdAsync(int id, bool? includeNullSection = true)
         {
-            return await _dbContext.ClassSchedules.FirstOrDefaultAsync(s => s.Id == id)
+            return await _dbContext.ClassSchedules.AsQueryable()
+                    .Include(cs => cs.SubjectTeacher)
+                       .ThenInclude(st => st.Subject)
+                   .Include(cs => cs.SubjectTeacher)
+                       .ThenInclude(st => st.Teacher)
+                   .Include(cs => cs.Section)
+                   .Where(cs => includeNullSection == true || cs.SectionId != null)
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync(s => s.Id == id)
                     ?? throw new NotFoundException(nameof(ClassSchedule));
         }
-
 
         public async Task<List<GetClassScheduleDTO>> QueryAsync(ClassScheduleQueryParams queryParams)
         {

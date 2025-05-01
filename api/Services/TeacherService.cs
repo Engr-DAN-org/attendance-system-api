@@ -24,7 +24,7 @@ namespace api.Services
                  .ThenInclude(st => st.Subject)
                  .Include(cs => cs.Section)
                  .ThenInclude(s => s.Course)
-                 .Where(cs => cs.SubjectTeacher != null && cs.SubjectTeacher.TeacherId == teacherId)
+                 .Where(cs => cs.SubjectTeacher != null && cs.SubjectTeacher.TeacherId == teacherId && cs.SectionId != null)
                  .ToListAsync();
 
             return [.. data.Select(cs => new GetClassScheduleDTO(cs))];

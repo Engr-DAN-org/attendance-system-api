@@ -26,17 +26,35 @@ public class DefaultUsersSeeder(AppDbContext context, ILogger<DefaultUsersSeeder
 
             new() {
                 Email = "arludave23@gmail.com",
-                IdNumber = 3200385.ToString(),
+                IdNumber = 3200381.ToString(),
                 FirstName = "Dave",
                 LastName = "Teacher",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 UserRole = UserRole.Teacher,
                 EmailConfirmed = true
             },
+            new() {
+                Email = "arludave20@gmail.com",
+                IdNumber = 3200382.ToString(),
+                FirstName = "Dave",
+                LastName = "Teacher 2",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+                UserRole = UserRole.Teacher,
+                EmailConfirmed = true
+            },
+            new() {
+                Email = "arludave21@gmail.com",
+                IdNumber = 3200383.ToString(),
+                FirstName = "Dave",
+                LastName = "Student 1",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+                UserRole = UserRole.Student,
+                EmailConfirmed = true
+            },
 
             new() {
                 Email = "arludave28@gmail.com",
-                IdNumber = 3200386.ToString(),
+                IdNumber = 3200384.ToString(),
                 FirstName = "Dave Arlu",
                 LastName = "Student",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),

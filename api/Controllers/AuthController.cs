@@ -73,7 +73,7 @@ namespace api.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
-                    return StatusCode(400, new { message = "User ID is missing or invalid." });
+                    return Unauthorized();
 
                 var response = await _authService.GetProfileAsync(userId);
                 return Ok(response);
