@@ -89,10 +89,6 @@ namespace api.Repositories
             Console.WriteLine($"SectionId is set: {queryParams.SectionId}");
             Console.WriteLine($"TeacherId is set: {queryParams.TeacherId}");
             var query = _dbContext.ClassSchedules
-                    .Include(cs => cs.SubjectTeacher)
-                       .ThenInclude(st => st.Subject)
-                   .Include(cs => cs.SubjectTeacher)
-                       .ThenInclude(st => st.Teacher)
                        .AsQueryable();
 
             if (!string.IsNullOrEmpty(queryParams.SectionId.ToString()))
@@ -103,7 +99,12 @@ namespace api.Repositories
             {
                 query = query.Where(cs => cs.SubjectTeacher != null && cs.SubjectTeacher.TeacherId == queryParams.TeacherId);
             }
-            return await query.Include(cs => cs.Section)
+            return await query
+                    .Include(cs => cs.Section)
+                    .Include(cs => cs.SubjectTeacher)
+                       .ThenInclude(st => st.Subject)
+                    .Include(cs => cs.SubjectTeacher)
+                       .ThenInclude(st => st.Teacher)
                    .Select(cs => new GetClassScheduleDTO(cs, true))
                    .ToListAsync();
         }

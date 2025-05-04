@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<SubjectTeacher> SubjectTeachers { get; set; }
     public DbSet<Section> Sections { get; set; }
     public DbSet<ClassSchedule> ClassSchedules { get; set; }
+    public DbSet<ClassSession> ClassSessions { get; set; }
     public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
     public DbSet<TwoFactorAuth> TwoFactorAuths { get; set; }
 
@@ -119,10 +120,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
         // === AttendanceRecord Config ===
         modelBuilder.Entity<AttendanceRecord>()
-            .HasOne(ar => ar.ClassSchedule)
-            .WithMany()
-            .HasForeignKey(ar => ar.ClassScheduleId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasOne(ar => ar.ClassSession)
+            .WithMany(cs => cs.AttendanceRecords)
+            .HasForeignKey(ar => ar.ClassSessionId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(ar => ar.Student)

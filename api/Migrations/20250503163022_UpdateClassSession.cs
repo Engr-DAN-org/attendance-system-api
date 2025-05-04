@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class UpdateClassSession : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -329,16 +329,51 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClassSessions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ClassScheduleId = table.Column<int>(type: "integer", nullable: false),
+                    Location = table.Column<string>(type: "text", nullable: true),
+                    Latitude = table.Column<double>(type: "double precision", nullable: true),
+                    Longitude = table.Column<double>(type: "double precision", nullable: true),
+                    GraceTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClassSessions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClassSessions_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ClassSessions_ClassSchedules_ClassScheduleId",
+                        column: x => x.ClassScheduleId,
+                        principalTable: "ClassSchedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AttendanceRecords",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClassScheduleId = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    IsExcused = table.Column<bool>(type: "boolean", nullable: false),
+                    ClassSessionId = table.Column<string>(type: "text", nullable: false),
                     StudentId = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ClockInRecord = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ClockInRecord = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
                     Location = table.Column<string>(type: "text", nullable: true),
                     Latitude = table.Column<double>(type: "double precision", nullable: true),
@@ -357,44 +392,11 @@ namespace api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AttendanceRecords_ClassSchedules_ClassScheduleId",
-                        column: x => x.ClassScheduleId,
-                        principalTable: "ClassSchedules",
+                        name: "FK_AttendanceRecords_ClassSessions_ClassSessionId",
+                        column: x => x.ClassSessionId,
+                        principalTable: "ClassSessions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClassSession",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClassScheduleId = table.Column<int>(type: "integer", nullable: false),
-                    TeacherId = table.Column<string>(type: "text", nullable: false),
-                    Location = table.Column<string>(type: "text", nullable: true),
-                    Latitude = table.Column<double>(type: "double precision", nullable: true),
-                    Longitude = table.Column<double>(type: "double precision", nullable: true),
-                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClassSession", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ClassSession_AspNetUsers_TeacherId",
-                        column: x => x.TeacherId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ClassSession_ClassSchedules_ClassScheduleId",
-                        column: x => x.ClassScheduleId,
-                        principalTable: "ClassSchedules",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -446,9 +448,9 @@ namespace api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AttendanceRecords_ClassScheduleId",
+                name: "IX_AttendanceRecords_ClassSessionId",
                 table: "AttendanceRecords",
-                column: "ClassScheduleId");
+                column: "ClassSessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceRecords_StudentId",
@@ -477,14 +479,14 @@ namespace api.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSession_ClassScheduleId",
-                table: "ClassSession",
+                name: "IX_ClassSessions_ClassScheduleId",
+                table: "ClassSessions",
                 column: "ClassScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSession_TeacherId",
-                table: "ClassSession",
-                column: "TeacherId");
+                name: "IX_ClassSessions_UserId",
+                table: "ClassSessions",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_Code",
@@ -602,9 +604,6 @@ namespace api.Migrations
                 name: "AttendanceRecords");
 
             migrationBuilder.DropTable(
-                name: "ClassSession");
-
-            migrationBuilder.DropTable(
                 name: "Guardians");
 
             migrationBuilder.DropTable(
@@ -612,6 +611,9 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "ClassSessions");
 
             migrationBuilder.DropTable(
                 name: "ClassSchedules");

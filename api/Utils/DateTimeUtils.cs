@@ -12,6 +12,11 @@ namespace api.Utils
             return DateTime.UtcNow.AddHours(1);
         }
 
+        public static DateTime AddMinutes(int minutes)
+        {
+            return DateTime.UtcNow.AddMinutes(minutes);
+        }
+
         public static DateTime TwoMinutesAfter()
         {
             return DateTime.UtcNow.AddMinutes(2);

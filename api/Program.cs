@@ -48,6 +48,8 @@ builder.Services.AddOptions();
 
 // Repository Dependency Injection
 builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
+builder.Services.AddScoped<IClassSessionRepository, ClassSessionRepository>();
+builder.Services.AddScoped<IAttendanceRecordRepository, AttendanceRecordRepository>();
 builder.Services.AddScoped<IGuardianRepository, GuardianRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
@@ -148,6 +150,8 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireRole(UserRole.Teacher.ToString(), UserRole.Admin.ToString()))
     .AddPolicy("RequireAdmin", policy =>
         policy.RequireRole(UserRole.Admin.ToString()))
+    .AddPolicy("RequireStudent", policy =>
+        policy.RequireRole(UserRole.Student.ToString()))
     .AddPolicy("RequireOwnerOrRole", policy =>
         policy.Requirements.Add(new OwnerOrRoleRequirement()))
     .AddPolicy("RequireOwnerOrAdmin", policy =>

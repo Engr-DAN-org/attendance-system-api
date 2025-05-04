@@ -6,17 +6,15 @@ using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Utils;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TeacherController(ITeacherService teacherService, IClassScheduleRepository scheduleRepository) : ControllerBase
+    public class TeacherController(ITeacherService teacherService) : ControllerBase
     {
         private readonly ITeacherService _teacherService = teacherService;
-        private readonly IClassScheduleRepository _scheduleRepo = scheduleRepository;
 
         [HttpGet("class-schedules")]
         [Authorize(Policy = "RequireTeacherOrAdmin")]
@@ -48,31 +46,23 @@ namespace api.Controllers
 
                 if (string.IsNullOrEmpty(teacherId))
                     return Unauthorized();
+                var classSchedule = await _teacherService.GetScheduleByIdAsync(teacherId, id);
 
-                var classSchedule = await _scheduleRepo.GetScheduleByIdAsync(id, false);
-
-                if (classSchedule?.SubjectTeacher?.TeacherId != teacherId)
-                    return NotFound();
-
-                return Ok(new GetClassScheduleDTO(classSchedule, true));
+                return Ok(classSchedule);
 
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound();
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
             }
             catch (System.Exception e)
             {
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
-
-        // [HttpGet("students")]
-        // [Authorize(Policy = "RequireTeacherOrAdmin")]
-        // public async Task<IActionResult> GetStudents([FromQuery] StudentQueryDTO studentQueryDTO)
-        // {
-        //     var users = await _teacherService.GetStudentsAsync(studentQueryDTO);
-        //     return Ok(users);
-        // }
     }
 }

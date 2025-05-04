@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250501094350_Initial")]
-    partial class Initial
+    [Migration("20250503163022_UpdateClassSession")]
+    partial class UpdateClassSession
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -165,10 +165,11 @@ namespace api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassScheduleId")
-                        .HasColumnType("integer");
+                    b.Property<string>("ClassSessionId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("ClockInRecord")
+                    b.Property<DateTime?>("ClockInRecord")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
@@ -180,6 +181,9 @@ namespace api.Migrations
                     b.Property<float?>("Distance")
                         .HasColumnType("real");
 
+                    b.Property<bool>("IsExcused")
+                        .HasColumnType("boolean");
+
                     b.Property<double?>("Latitude")
                         .HasColumnType("double precision");
 
@@ -188,6 +192,9 @@ namespace api.Migrations
 
                     b.Property<double?>("Longitude")
                         .HasColumnType("double precision");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("StudentId")
                         .IsRequired()
@@ -204,7 +211,7 @@ namespace api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassScheduleId");
+                    b.HasIndex("ClassSessionId");
 
                     b.HasIndex("StudentId");
 
@@ -267,11 +274,8 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<int>("ClassScheduleId")
                         .HasColumnType("integer");
@@ -280,6 +284,9 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("GraceTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<double?>("Latitude")
@@ -294,20 +301,22 @@ namespace api.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("TeacherId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClassScheduleId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("ClassSession");
+                    b.ToTable("ClassSessions");
                 });
 
             modelBuilder.Entity("api.Models.Entities.Course", b =>
@@ -685,10 +694,10 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Entities.AttendanceRecord", b =>
                 {
-                    b.HasOne("api.Models.Entities.ClassSchedule", "ClassSchedule")
-                        .WithMany()
-                        .HasForeignKey("ClassScheduleId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                    b.HasOne("api.Models.Entities.ClassSession", "ClassSession")
+                        .WithMany("AttendanceRecords")
+                        .HasForeignKey("ClassSessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("api.Models.Entities.User", "Student")
@@ -697,7 +706,7 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ClassSchedule");
+                    b.Navigation("ClassSession");
 
                     b.Navigation("Student");
                 });
@@ -731,20 +740,16 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
                 {
                     b.HasOne("api.Models.Entities.ClassSchedule", "ClassSchedule")
-                        .WithMany()
+                        .WithMany("ClassSessions")
                         .HasForeignKey("ClassScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Entities.User", "Teacher")
+                    b.HasOne("api.Models.Entities.User", null)
                         .WithMany("ClassSessions")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("ClassSchedule");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("api.Models.Entities.Guardian", b =>
@@ -803,6 +808,16 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Section");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.ClassSchedule", b =>
+                {
+                    b.Navigation("ClassSessions");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.ClassSession", b =>
+                {
+                    b.Navigation("AttendanceRecords");
                 });
 
             modelBuilder.Entity("api.Models.Entities.Course", b =>

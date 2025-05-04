@@ -9,11 +9,9 @@ namespace api.Interfaces.Service
 {
     public interface IStudentService
     {
-        public Task<GetStudentDTO> CreateStudentAsync(CreateStudentDTO student);
-        public Task<GetStudentDTO> UpdateStudentAsync(UpdateStudentDTO student);
-        public Task DeleteStudentAsync(string id);
         public Task<GetStudentDTO?> GetStudentByIdAsync(string id);
-        // public Task<List<GetStudentDTO>> GetStudentsAsync(StudentQueryDTO studentQueryDTO);
-
+        public Task<AttendanceRecord> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO);
+        public Task<List<AttendanceRecord>> GetAttendanceRecordsAsync(string studentId);
+        public Task<AttendanceRecord> FindBySessionIdAsync(string studentId, string classSessionId);
     }
 }

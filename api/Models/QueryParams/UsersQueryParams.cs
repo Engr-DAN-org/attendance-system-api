@@ -7,5 +7,7 @@ namespace api.Models.QueryParams
     {
         public string[] Role { get; set; } = [];
         public string[] Status { get; set; } = [];
+        public int? SectionId { get; set; } = null;
+        public bool? Paginate { get; set; } = true;
     }
 }

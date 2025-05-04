@@ -9,6 +9,12 @@ namespace api.Interfaces.Service
 {
     public interface ITeacherService
     {
-        public Task<List<GetClassScheduleDTO>> GetClassSchedulesAsync(string teacherId);
+        Task<List<GetClassScheduleDTO>> GetClassSchedulesAsync(string teacherId);
+        Task<GetClassScheduleDTO> GetScheduleByIdAsync(string teacherId, int scheduleId);
+
+        Task<ClassSession> StartClassSessionAsync(string teacherId, CreateClassSessionDTO dto);
+        Task<ClassSession> EndClassSessionAsync(string teacherId, string sessionId);
+        Task<ClassSession> CancelClassSessionAsync(string teacherId, string sessionId);
+        Task OverRideRecordAsync(string teacherId, OverrideAttendanceRecordDTO dto);
     }
 }

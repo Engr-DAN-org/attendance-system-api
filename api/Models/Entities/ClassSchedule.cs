@@ -26,4 +26,5 @@ public class ClassSchedule
     // Additional properties for display purposes
     public Subject? Subject => SubjectTeacher?.Subject;
     public User? Teacher => SubjectTeacher?.Teacher;
+    public List<ClassSession> ClassSessions { get; set; } = [];
 }

@@ -1,27 +1,26 @@
 using System;
+using api.Enums;
 using api.Utils;
 namespace api.Models.Entities;
 
 public class ClassSession
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    public ClassSessionStatus Status { get; set; } = ClassSessionStatus.Created;
 
     // Link to the class schedule
     public required int ClassScheduleId { get; set; }
     public bool IsRemote() => Latitude == null && Longitude == null;
-    public required ClassSchedule ClassSchedule { get; set; }
-
-
-    // The teacher who started the session
-    public required string TeacherId { get; set; }
-    public required User Teacher { get; set; }
-
+    public ClassSchedule? ClassSchedule { get; set; }
 
     public string? Location { get; set; }
     // ✅ Store teacher's location at session start
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 
+    //The time indicator if the atendance is not late
+    public DateTime? GraceTime { get; set; }
 
     // The actual date and time when the session was started
     public DateTime StartTime { get; set; } = DateTimeUtils.DateTimeNow();
@@ -29,5 +28,8 @@ public class ClassSession
 
     // Auto-set timestamps
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();
-    public DateTime UpdatedAt { get; set; } = DateTimeUtils.DateTimeNow();
+    public DateTime? UpdatedAt { get; set; }
+
+    public List<AttendanceRecord> AttendanceRecords { get; set; } = [];
+
 }
