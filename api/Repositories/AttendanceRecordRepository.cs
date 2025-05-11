@@ -84,7 +84,7 @@ namespace api.Repositories
 
             var currentTime = DateTimeUtils.DateTimeNow();
 
-            if (classSession.GraceTime != null && classSession.GraceTime < currentTime)
+            if (classSession.GraceTime != null && DateTime.TryParse(classSession.GraceTime, out var graceTime) && graceTime < currentTime)
                 attendanceRecord.Status = AttendanceStatus.Late;
             else
                 attendanceRecord.Status = AttendanceStatus.Present;

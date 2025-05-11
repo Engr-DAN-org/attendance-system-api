@@ -18,9 +18,5 @@ namespace api.Enums
 
         [EnumMember(Value = "Unmarked")]
         Unmarked,
-
-        [EnumMember(Value = "Canceled")]
-        Canceled,
-
     }
 }

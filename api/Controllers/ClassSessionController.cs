@@ -19,6 +19,32 @@ namespace api.Controllers
     {
         private readonly ITeacherService _teacherService = teacherService;
 
+        [HttpGet("{sessionId}")]
+        public async Task<IActionResult> GetClassSession(string sessionId)
+        {
+            try
+            {
+                var teacherId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(teacherId))
+                    return Unauthorized();
+
+                var classSession = await _teacherService.GetClassSessionByIdAsync(sessionId);
+                return Ok(classSession);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
         [HttpPost("start")]
         public async Task<IActionResult> StartClassSession([FromBody] CreateClassSessionDTO dto)
         {

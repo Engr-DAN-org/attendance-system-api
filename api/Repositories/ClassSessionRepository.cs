@@ -6,6 +6,7 @@ using api.Data;
 using api.Enums;
 using api.Exceptions;
 using api.Interfaces.Repository;
+using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Models.Entities;
 using api.Utils;
@@ -22,17 +23,20 @@ namespace api.Repositories
         {
             try
             {
-                var classSession = await GetByIdAsync(id);
+                var classSession = await GetByIdAsync(id, true);
                 // Check if the class session is already canceled or ended
                 if (classSession.Status == ClassSessionStatus.Canceled || classSession.Status == ClassSessionStatus.Ended)
                 {
                     throw new InvalidOperationException("Class session is already canceled or ended.");
                 }
 
+                var now = DateTimeUtils.DateTimeNow();
+
                 classSession.Status = ClassSessionStatus.Canceled;
-                classSession.UpdatedAt = DateTime.UtcNow;
+                classSession.UpdatedAt = now;
                 _context.ClassSessions.Update(classSession);
                 await _context.SaveChangesAsync();
+
                 return classSession;
             }
             catch (System.Exception)
@@ -45,10 +49,13 @@ namespace api.Repositories
         {
             try
             {
-                var classSession = dto.ToClassSession(classSchedule);
-                await _context.ClassSessions.AddAsync(classSession);
+                var sessionDTO = dto.ToClassSession(classSchedule);
+                var newSession = await _context.ClassSessions.AddAsync(sessionDTO);
+
+
                 await _context.SaveChangesAsync();
-                return classSession;
+
+                return newSession.Entity;
             }
             catch (System.Exception)
             {
@@ -60,19 +67,21 @@ namespace api.Repositories
         {
             try
             {
-                var currentTime = DateTimeUtils.DateTimeNow();
-                var classSession = await GetByIdAsync(id);
+                var classSession = await GetByIdAsync(id, true);
+                var now = DateTimeUtils.DateTimeNow();
 
                 // Check if the class session is already canceled or ended
                 if (classSession.Status == ClassSessionStatus.Canceled || classSession.Status == ClassSessionStatus.Ended)
                 {
                     throw new InvalidOperationException("Class session is already canceled or ended.");
                 }
+
                 classSession.Status = ClassSessionStatus.Ended;
-                classSession.EndTime = currentTime;
-                classSession.UpdatedAt = currentTime;
+                classSession.EndTime = now;
+                classSession.UpdatedAt = now;
                 _context.ClassSessions.Update(classSession);
                 await _context.SaveChangesAsync();
+
                 return classSession;
             }
             catch (System.Exception)
@@ -97,13 +106,14 @@ namespace api.Repositories
             if (includesRelation == true)
             {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                _ = query.Include(cs => cs.AttendanceRecords)
-                .Include(cs => cs.ClassSchedule)
-                    .ThenInclude(cs => cs.SubjectTeacher)
-                        .ThenInclude(st => st.Subject)
-                .Include(cs => cs.ClassSchedule)
-                    .ThenInclude(cs => cs.SubjectTeacher)
-                        .ThenInclude(st => st.Teacher);
+                query = query.Include(cs => cs.AttendanceRecords)
+                        .ThenInclude(ar => ar.Student)
+                    .Include(cs => cs.ClassSchedule)
+                        .ThenInclude(cs => cs.SubjectTeacher)
+                            .ThenInclude(st => st.Subject)
+                    .Include(cs => cs.ClassSchedule)
+                        .ThenInclude(cs => cs.SubjectTeacher)
+                            .ThenInclude(st => st.Teacher);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
 

@@ -64,5 +64,32 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
+
+        [HttpPost("override-attendance")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+        public async Task<IActionResult> OverrideAttendance([FromBody] OverrideAttendanceRecordDTO dto)
+        {
+            try
+            {
+                var teacherId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(teacherId))
+                    return Unauthorized();
+
+                await _teacherService.OverRideRecordAsync(teacherId, dto);
+                return Ok(new { message = "Attendance record overridden successfully." });
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
     }
 }

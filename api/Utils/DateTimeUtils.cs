@@ -29,8 +29,13 @@ namespace api.Utils
 
         public static string DateTimeNowFormattedString()
         {
+            return ToPhTimeString(DateTimeNow());
+        }
+
+        public static string ToPhTimeString(DateTime dateTime)
+        {
             TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
-            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTimeNow(), philippineTimeZone);
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(dateTime, philippineTimeZone);
             return philippineTime.ToString("MMM dd, yyyy 'at' h:mm tt");
         }
 

@@ -24,7 +24,7 @@ namespace api.Services
                             <p>Keep up the great attendance!</p>
                             <br>
                         ";
-                await SendEmailAsync(student.Email, subject, body);
+                await SendEmailAsync([student.Email], subject, body);
             }
             if (student.Guardian?.Email != null)
             {
@@ -35,7 +35,7 @@ namespace api.Services
                             <p>Thank you for staying involved in their academic journey.</p>
                             <br>
                             ";
-                await SendEmailAsync(student.Guardian.Email, subject, body);
+                await SendEmailAsync([student.Guardian.Email], subject, body);
             }
         }
 
@@ -68,7 +68,7 @@ namespace api.Services
                     <br>
                     ";
 
-                await SendEmailAsync(student.Email, subject, body);
+                await SendEmailAsync([student.Email], subject, body);
             }
             if (student.Guardian?.Email != null)
             {
@@ -81,24 +81,109 @@ namespace api.Services
                         <br>
                     ";
 
-                await SendEmailAsync(student.Guardian.Email, subject, body);
+                await SendEmailAsync([student.Guardian.Email], subject, body);
             }
         }
+
+        public async Task SendClassClassStartedEmailAsync(List<User> students, string SubjectCode, DateTime dateTime)
+        {
+            var formattedDateTime = DateTimeUtils.ToPhTimeString(dateTime);
+            var appUrl = VariableParser.GetEnvString("VITE_APP_URL");
+
+            var subject = "Class Started";
+
+            var body = $@"
+                    <p>Dear Student,</p>
+
+                    <p>This is a friendly reminder that your class <strong>{SubjectCode}</strong> has just started on <strong>{formattedDateTime}</strong>.</p>
+
+                    <p>Please open the student app or click the link below to log in and mark your attendance by scanning the QR code provided by your teacher:</p>
+
+                    <p>
+                        <a href='{appUrl}/sign-in' style='display:inline-block;padding:10px 20px;background-color:#007bff;color:white;text-decoration:none;border-radius:5px;'>
+                            Log in to Web App
+                        </a>
+                    </p>
+
+                    <p>Make sure to join the class on time and participate actively.</p>
+
+                    <br />
+                    <p>Thank you and enjoy your class!</p>
+                ";
+
+
+            var emailAddresses = students
+                .Where(r => !string.IsNullOrEmpty(r.Email))
+                .Select(r => r.Email!)
+                .ToList();
+
+            await SendEmailAsync(emailAddresses, subject, body);
+        }
+
+        public async Task SendClassClassCanceledEmailAsync(List<User> students, string SubjectCode, DateTime dateTime)
+        {
+            var formattedDateTime = DateTimeUtils.ToPhTimeString(dateTime);
+            var subject = "Class Cancelation Notification";
+
+            var body = $@"
+                <p>Dear Student,</p>
+
+                <p>We would like to inform you that your scheduled class for <strong>{SubjectCode}</strong> on <strong>{formattedDateTime}</strong> has been <strong>CANCELED</strong>.</p>
+
+                <p>Please wait for further updates or rescheduling information from your teacher or the school administration.</p>
+
+                <br />
+                <p>Thank you for your understanding.</p>
+                ";
+
+            var emailAddresses = students
+                .Where(r => !string.IsNullOrEmpty(r.Email))
+                .Select(r => r.Email!)
+                .ToList();
+
+            await SendEmailAsync(emailAddresses, subject, body);
+        }
+
+
+        public async Task SendAbsentFromClassEmailAsync(List<User> students, string SubjectCode, DateTime dateTime)
+        {
+            var formattedDateTime = DateTimeUtils.ToPhTimeString(dateTime);
+            var subject = "Class Session Ended";
+
+            var body = $@"
+            <p>Dear Student,</p>
+
+            <p>We would like to inform you that you were marked as <strong>ABSENT</strong> for the class session of <strong>{SubjectCode}</strong>, which concluded on <strong>{formattedDateTime}</strong>.</p>
+
+            <p>If you believe this record is incorrect, please contact your teacher as soon as possible to clarify the matter.</p>
+
+            <br />
+            <p>Thank you for your attention.</p>
+            ";
+
+            var emailAddresses = students
+                .Where(r => !string.IsNullOrEmpty(r.Email))
+                .Select(r => r.Email!)
+                .ToList();
+
+            await SendEmailAsync(emailAddresses, subject, body);
+        }
+
 
 
 
         public async Task SendOTPEmailAsync(string toEmail, string body)
         {
             var subject = "2FA Verification";
-            await SendEmailAsync(toEmail, subject, body);
+            await SendEmailAsync([toEmail], subject, body);
         }
 
         public async Task SendPasswordResetEmailAsync(string toEmail, string subject, string body)
         {
-            await SendEmailAsync(toEmail, subject, body);
+            await SendEmailAsync([toEmail], subject, body);
         }
 
-        private async Task SendEmailAsync(string toEmail, string subject, string body)
+        private async Task SendEmailAsync(List<string> toEmails, string subject, string body)
         {
             try
             {
@@ -114,7 +199,10 @@ namespace api.Services
                     IsBodyHtml = true
                 };
 
-                mailMessage.To.Add(toEmail);
+                foreach (var email in toEmails)
+                {
+                    mailMessage.To.Add(email);
+                }
 
                 await smtpClient.SendMailAsync(mailMessage);
             }
@@ -123,5 +211,7 @@ namespace api.Services
                 throw;
             }
         }
+
+
     }
 }

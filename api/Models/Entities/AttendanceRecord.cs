@@ -27,8 +27,8 @@ public class AttendanceRecord
     public float? Distance { get; set; }
 
     // 🕓 Attendance times
-    public TimeOnly? TimeIn { get; set; } = DateTimeUtils.TimeNow();
-    public TimeOnly? TimeOut { get; set; }
+    public DateTime? TimeIn { get; set; }
+    // public TimeOnly? TimeOut { get; set; }
 
     // 🧾 Display helpers
     public string StudentName => Student?.FullName ?? "Deleted Student";

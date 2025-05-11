@@ -33,7 +33,9 @@ namespace api.Repositories
                    .Include(cs => cs.SubjectTeacher)
                        .ThenInclude(st => st.Teacher)
                    .Include(cs => cs.Section)
+                        .ThenInclude(s => s.Students)
                    .Where(cs => includeNullSection == true || cs.SectionId != null)
+                   .Include(cs => cs.ClassSessions)
                    .AsNoTracking()
                    .FirstOrDefaultAsync(s => s.Id == id)
                     ?? throw new NotFoundException(nameof(ClassSchedule));
@@ -105,6 +107,7 @@ namespace api.Repositories
                        .ThenInclude(st => st.Subject)
                     .Include(cs => cs.SubjectTeacher)
                        .ThenInclude(st => st.Teacher)
+                    .Include(cs => cs.ClassSessions)
                    .Select(cs => new GetClassScheduleDTO(cs, true))
                    .ToListAsync();
         }

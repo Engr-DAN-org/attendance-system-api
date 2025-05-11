@@ -48,10 +48,10 @@ namespace api.Services
 
                 var classSession = await _sessionRepository.GetByIdAsync(attendanceDTO.ClassSessionId, false);
 
-                if (classSession.Status != ClassSessionStatus.Created && classSession.Status != ClassSessionStatus.Started)
-                {
+                if (classSession.Status == ClassSessionStatus.Ended)
                     throw new InvalidOperationException("You may be too late. Please contact your teacher.");
-                }
+                if (classSession.Status == ClassSessionStatus.Canceled)
+                    throw new InvalidOperationException("Class has been canceled. Cannot continue.");
 
                 return await _recordRepository.LogAttendanceAsync(classSession, attendanceDTO);
             }

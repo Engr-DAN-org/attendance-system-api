@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateClassSession : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -338,9 +338,9 @@ namespace api.Migrations
                     Location = table.Column<string>(type: "text", nullable: true),
                     Latitude = table.Column<double>(type: "double precision", nullable: true),
                     Longitude = table.Column<double>(type: "double precision", nullable: true),
-                    GraceTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    GraceTime = table.Column<string>(type: "text", nullable: true),
                     StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: true)
@@ -365,10 +365,8 @@ namespace api.Migrations
                 name: "AttendanceRecords",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    IsExcused = table.Column<bool>(type: "boolean", nullable: false),
                     ClassSessionId = table.Column<string>(type: "text", nullable: false),
                     StudentId = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -379,8 +377,9 @@ namespace api.Migrations
                     Latitude = table.Column<double>(type: "double precision", nullable: true),
                     Longitude = table.Column<double>(type: "double precision", nullable: true),
                     Distance = table.Column<float>(type: "real", nullable: true),
-                    TimeIn = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    TimeOut = table.Column<TimeOnly>(type: "time without time zone", nullable: true)
+                    TimeIn = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    OverriddenBy = table.Column<string>(type: "text", nullable: true),
+                    OverriddenAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

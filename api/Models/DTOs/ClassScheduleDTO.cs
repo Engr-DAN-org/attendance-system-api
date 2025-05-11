@@ -21,6 +21,7 @@ namespace api.Models.DTOs
         public GetSectionDTO? Section { get; set; } = includesRelation && classSchedule.Section != null ? new GetSectionDTO(classSchedule.Section, false) : null;
         public GetSubjectDTO? Subject { get; set; } = includesRelation && classSchedule.Subject != null ? new GetSubjectDTO(classSchedule.Subject, false) : null;
         public GetTeacherDTO? Teacher { get; set; } = includesRelation && classSchedule.Teacher != null ? new GetTeacherDTO(classSchedule.Teacher, false) : null;
+        public List<GetClassSessionDTO> ClassSessions { get; set; } = includesRelation ? [.. classSchedule.ClassSessions.Select(cs => new GetClassSessionDTO(cs))] : [];
 
         // Direct Properties from Relations
         public string? TeacherName => Teacher?.FullName;

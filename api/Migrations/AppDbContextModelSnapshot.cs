@@ -156,11 +156,8 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Entities.AttendanceRecord", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<string>("ClassSessionId")
                         .IsRequired()
@@ -178,9 +175,6 @@ namespace api.Migrations
                     b.Property<float?>("Distance")
                         .HasColumnType("real");
 
-                    b.Property<bool>("IsExcused")
-                        .HasColumnType("boolean");
-
                     b.Property<double?>("Latitude")
                         .HasColumnType("double precision");
 
@@ -190,6 +184,12 @@ namespace api.Migrations
                     b.Property<double?>("Longitude")
                         .HasColumnType("double precision");
 
+                    b.Property<DateTime?>("OverriddenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OverriddenBy")
+                        .HasColumnType("text");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -197,11 +197,8 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<TimeOnly>("TimeIn")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<TimeOnly?>("TimeOut")
-                        .HasColumnType("time without time zone");
+                    b.Property<DateTime?>("TimeIn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -280,11 +277,11 @@ namespace api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("EndTime")
+                    b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("GraceTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("GraceTime")
+                        .HasColumnType("text");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("double precision");

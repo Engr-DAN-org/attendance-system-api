@@ -9,4 +9,9 @@ public interface IEmailService
 
     Task SendAttendanceConfirmationEmailAsync(User student);
     Task SendRegistrationCredentialsAsync(User user, string password);
+
+    Task SendClassClassStartedEmailAsync(List<User> students, string SubjectCode, DateTime dateTime);
+    Task SendClassClassCanceledEmailAsync(List<User> students, string SubjectCode, DateTime dateTime);
+    Task SendAbsentFromClassEmailAsync(List<User> students, string SubjectCode, DateTime dateTime);
+
 }

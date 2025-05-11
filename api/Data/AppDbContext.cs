@@ -119,6 +119,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .OnDelete(DeleteBehavior.Cascade);
 
         // === AttendanceRecord Config ===
+        modelBuilder.Entity<ClassSession>()
+            .HasMany(cs => cs.AttendanceRecords)
+            .WithOne(ar => ar.ClassSession)
+            .HasForeignKey(ar => ar.ClassSessionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(ar => ar.ClassSession)
             .WithMany(cs => cs.AttendanceRecords)

@@ -4,7 +4,7 @@ using api.Models.Entities;
 
 namespace api.Models.DTOs;
 
-public class AuthUserDTO(User user)
+public class AuthUserDTO(User user, bool? includesRelation = true)
 {
     public string Id { get; set; } = user.Id;
     public string IdNumber { get; set; } = user.IdNumber;
@@ -20,11 +20,11 @@ public class AuthUserDTO(User user)
     public int? GuardianId { get; set; } = user.GuardianId;
 
     //Relations
-    public GetGuardianDTO? Guardian { get; set; } = user.Guardian != null ? new GetGuardianDTO(user.Guardian) : null;
-    public GetSectionDTO? Section { get; set; } = user.Section != null ? new GetSectionDTO(user.Section, false) : null;
-    public GetSubjectTeacherDTO[] SubjectTeachers { get; set; } = [.. user.SubjectTeachers.Select(st => new GetSubjectTeacherDTO(st))];
-    public GetClassScheduleDTO[] ClassSchedules { get; set; } = [.. user.ClassSchedules.Select(cs => new GetClassScheduleDTO(cs, false))];
-    public ClassSession[] ClassSessions { get; set; } = [.. user.ClassSessions];
+    public GetGuardianDTO? Guardian { get; set; } = includesRelation == true && user.Guardian != null ? new GetGuardianDTO(user.Guardian) : null;
+    public GetSectionDTO? Section { get; set; } = includesRelation == true && user.Section != null ? new GetSectionDTO(user.Section, false) : null;
+    public GetSubjectTeacherDTO[] SubjectTeachers { get; set; } = includesRelation == true ? [.. user.SubjectTeachers.Select(st => new GetSubjectTeacherDTO(st))] : [];
+    public GetClassScheduleDTO[] ClassSchedules { get; set; } = includesRelation == true ? [.. user.ClassSchedules.Select(cs => new GetClassScheduleDTO(cs, false))] : [];
+    public ClassSession[] ClassSessions { get; set; } = includesRelation == true ? [.. user.ClassSessions] : [];
 }
 
 public class RegisterTeacherDTO
