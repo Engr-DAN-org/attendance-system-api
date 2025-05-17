@@ -27,7 +27,7 @@ public class AttendanceRecord
     public float? Distance { get; set; }
 
     // 🕓 Attendance times
-    public DateTime? TimeIn { get; set; }
+    // public DateTime? TimeIn { get; set; }
     // public TimeOnly? TimeOut { get; set; }
 
     // 🧾 Display helpers

@@ -18,13 +18,14 @@ namespace api.Services
         private readonly IClassSessionRepository _sessionRepository = sessionRepository;
 
 
-        public async Task<List<AttendanceRecord>> GetAttendanceRecordsAsync(string studentId)
+        public async Task<List<GetAttendanceRecordDTO>> GetAttendanceRecordsAsync(string studentId)
         {
             var student = await _userRepository.FindByIdAsync(studentId);
             if (student == null || student.UserRole != UserRole.Student)
                 throw new NotFoundException(nameof(User));
 
-            return await _recordRepository.GetListByStudentIdAsync(studentId);
+            var data = await _recordRepository.GetListByStudentIdAsync(studentId);
+            return [.. data.Select(record => new GetAttendanceRecordDTO(record, false))];
         }
 
         public async Task<AttendanceRecord> FindBySessionIdAsync(string studentId, string classSessionId)
@@ -53,12 +54,26 @@ namespace api.Services
                 if (classSession.Status == ClassSessionStatus.Canceled)
                     throw new InvalidOperationException("Class has been canceled. Cannot continue.");
 
-                return await _recordRepository.LogAttendanceAsync(classSession, attendanceDTO);
+                return await _recordRepository.LogAttendanceAsync(studentId, classSession, attendanceDTO);
             }
             catch (System.Exception)
             {
                 throw;
             }
+        }
+
+        public async Task<GetSectionDTO> GetClassSchedulesAsync(string studentId)
+        {
+            var student = await _userRepository.FindByIdAsync(studentId);
+            var sectionData = student.Section ?? throw new NotFoundException(nameof(Section));
+
+            return new GetSectionDTO(sectionData, true);
+        }
+
+        public async Task<GetAttendanceRecordDTO> GetAttendanceRecordBySessionIdAsync(string studentId, string classSessionId)
+        {
+            var attendanceRecord = await _recordRepository.GetByClassSessionIdAndStudentIdAsync(classSessionId, studentId);
+            return new GetAttendanceRecordDTO(attendanceRecord, false);
         }
     }
 }

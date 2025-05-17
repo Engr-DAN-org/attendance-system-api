@@ -35,7 +35,6 @@ namespace api.Repositories
                    .Include(cs => cs.Section)
                         .ThenInclude(s => s.Students)
                    .Where(cs => includeNullSection == true || cs.SectionId != null)
-                   .Include(cs => cs.ClassSessions)
                    .AsNoTracking()
                    .FirstOrDefaultAsync(s => s.Id == id)
                     ?? throw new NotFoundException(nameof(ClassSchedule));
@@ -54,7 +53,7 @@ namespace api.Repositories
             {
                 var searchName = queryParams.TeacherName.ToLower();
                 query = query.Where(cs => cs.SubjectTeacher != null
-                        && $"{cs.SubjectTeacher.Teacher.FirstName} {cs.SubjectTeacher.Teacher.LastName}"
+                        && $"{cs.SubjectTeacher!.Teacher!.FirstName} {cs.SubjectTeacher.Teacher.LastName}"
                         .ToLower()
                         .Contains(searchName));
             }
@@ -62,7 +61,7 @@ namespace api.Repositories
             if (!string.IsNullOrEmpty(queryParams.SubjectName))
             {
                 var searchName = queryParams.SubjectName.ToLower();
-                query = query.Where(cs => cs.SubjectTeacher != null && (cs.SubjectTeacher.Subject.Name.ToLower().Contains(searchName) || cs.SubjectTeacher.Subject.Code.ToLower().Contains(searchName)));
+                query = query.Where(cs => cs.SubjectTeacher != null && (cs.SubjectTeacher!.Subject!.Name.ToLower().Contains(searchName) || cs.SubjectTeacher.Subject.Code.ToLower().Contains(searchName)));
             }
             if (queryParams.Unassigned == true)
             {

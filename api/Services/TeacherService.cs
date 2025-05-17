@@ -156,5 +156,11 @@ namespace api.Services
             ClassSession classSession = await _sessionRepository.GetByIdAsync(sessionId, true);
             return new GetClassSessionDTO(classSession);
         }
+
+        public async Task<List<GetClassSessionDTO>> GetSesssionsByScheduleIdAsync(int scheduleId)
+        {
+            var classSessions = await _sessionRepository.GetListByClassScheduleIdAsync(scheduleId);
+            return [.. classSessions.Select(x => new GetClassSessionDTO(x))];
+        }
     }
 }

@@ -10,7 +10,6 @@ namespace api.Models.DTOs
     public class LogAttendanceRecordDTO
     {
         public required string ClassSessionId { get; set; }
-        public required string StudentId { get; set; }
         public string? Location { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
@@ -28,7 +27,7 @@ namespace api.Models.DTOs
         public required AttendanceStatus Status { get; set; }
     }
 
-    public class GetAttendanceRecordDTO(AttendanceRecord attendanceRecord)
+    public class GetAttendanceRecordDTO(AttendanceRecord attendanceRecord, bool? includeStudentData = true)
     {
         public string Id { get; set; } = attendanceRecord.Id;
         public string ClassSessionId { get; set; } = attendanceRecord.ClassSessionId;
@@ -38,9 +37,13 @@ namespace api.Models.DTOs
         public double? Latitude { get; set; } = attendanceRecord.Latitude;
         public double? Longitude { get; set; } = attendanceRecord.Longitude;
         public float? Distance { get; set; } = attendanceRecord.Distance;
-        public DateTime? TimeIn { get; set; } = attendanceRecord.TimeIn;
+        public DateTime? ClockInRecord { get; set; } = attendanceRecord.ClockInRecord;
         public string StudentName = attendanceRecord.StudentName;
+        public DateTime CreatedAt { get; set; } = attendanceRecord.CreatedAt;
+        public AuthUserDTO? Student { get; set; } = includeStudentData == true && attendanceRecord.Student != null ? new AuthUserDTO(attendanceRecord.Student, false) : null;
+    }
 
-        public AuthUserDTO? Student { get; set; } = attendanceRecord.Student != null ? new AuthUserDTO(attendanceRecord.Student, false) : null;
+    public class AttendanceRecordQueryDTO : BaseQueryDTO<GetAttendanceRecordDTO>
+    {
     }
 }

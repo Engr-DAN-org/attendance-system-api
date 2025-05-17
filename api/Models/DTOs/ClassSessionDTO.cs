@@ -36,6 +36,7 @@ namespace api.Models.DTOs
         public string? Location { get; set; } = classSession.Location;
         public double? Latitude { get; set; } = classSession.Latitude;
         public double? Longitude { get; set; } = classSession.Longitude;
+        public bool IsRemote { get; set; } = classSession.IsRemote();
         public string? GraceTime { get; set; } = classSession.GraceTime;
         public DateTime StartTime { get; set; } = classSession.StartTime;
         public DateTime? EndTime { get; set; } = classSession.EndTime;

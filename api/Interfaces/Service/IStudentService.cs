@@ -11,7 +11,11 @@ namespace api.Interfaces.Service
     {
         public Task<GetStudentDTO?> GetStudentByIdAsync(string id);
         public Task<AttendanceRecord> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO);
-        public Task<List<AttendanceRecord>> GetAttendanceRecordsAsync(string studentId);
+        public Task<List<GetAttendanceRecordDTO>> GetAttendanceRecordsAsync(string studentId);
         public Task<AttendanceRecord> FindBySessionIdAsync(string studentId, string classSessionId);
+
+        public Task<GetSectionDTO> GetClassSchedulesAsync(string studentId);
+
+        public Task<GetAttendanceRecordDTO> GetAttendanceRecordBySessionIdAsync(string studentId, string classSessionId);
     }
 }

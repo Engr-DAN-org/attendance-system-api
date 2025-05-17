@@ -15,9 +15,36 @@ namespace api.Controllers
     [Route("api/[controller]")]
     [Authorize(Policy = "RequireTeacherOrAdmin")]
 
-    public class ClassSessionController(ITeacherService teacherService) : ControllerBase
+    public class ClassSessionController(ITeacherService teacherService, IStudentService studentService) : ControllerBase
     {
         private readonly ITeacherService _teacherService = teacherService;
+        private readonly IStudentService _studentService = studentService;
+
+        [HttpGet("class-schedule/{scheduleId}")]
+        public async Task<IActionResult> GetClassSessionsByScheduleId(int scheduleId)
+        {
+            try
+            {
+                var teacherId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(teacherId))
+                    return Unauthorized();
+
+                var classSessions = await _teacherService.GetSesssionsByScheduleIdAsync(scheduleId);
+                return Ok(classSessions);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
 
         [HttpGet("{sessionId}")]
         public async Task<IActionResult> GetClassSession(string sessionId)
@@ -30,6 +57,31 @@ namespace api.Controllers
 
                 var classSession = await _teacherService.GetClassSessionByIdAsync(sessionId);
                 return Ok(classSession);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
+        [HttpGet("{sessionId}/attendance-record")]
+        [Authorize(Policy = "RequireStudent")]
+        public async Task<IActionResult> GetAttendanceRecord(string sessionId)
+        {
+            try
+            {
+                var studentId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var attendanceRecords = await _studentService.GetAttendanceRecordBySessionIdAsync(studentId!, sessionId);
+                return Ok(attendanceRecords);
             }
             catch (NotFoundException e)
             {

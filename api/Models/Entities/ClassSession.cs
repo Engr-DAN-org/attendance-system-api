@@ -11,7 +11,8 @@ public class ClassSession
 
     // Link to the class schedule
     public required int ClassScheduleId { get; set; }
-    public bool IsRemote() => Latitude == null && Longitude == null;
+    public bool IsRemote() => Latitude == null || Longitude == null;
+
     public ClassSchedule? ClassSchedule { get; set; }
 
     public string? Location { get; set; }
@@ -24,7 +25,7 @@ public class ClassSession
 
     // The actual date and time when the session was started
     public DateTime StartTime { get; set; } = DateTimeUtils.DateTimeNow();
-    public DateTime EndTime { get; set; }
+    public DateTime? EndTime { get; set; }
 
     // Auto-set timestamps
     public DateTime CreatedAt { get; set; } = DateTimeUtils.DateTimeNow();

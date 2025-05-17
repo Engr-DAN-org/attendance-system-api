@@ -8,6 +8,7 @@ using api.Interfaces.Repository;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Models.Entities;
+using api.Models.QueryParams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,38 @@ namespace api.Controllers
         private readonly IAttendanceRecordRepository _recordRepository = recordRepository;
         private readonly IStudentService _studentService = studentService;
         private readonly ITeacherService _teacherService = teacherService;
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAttendanceRecords([FromQuery] AttendanceRecordQueryParams queryParams)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var records = await _recordRepository.QueryAsync(queryParams);
+                return Ok(records);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
 
         [HttpPost("log")]
         [Authorize(Policy = "RequireStudent")]
@@ -81,5 +114,6 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
+
     }
 }

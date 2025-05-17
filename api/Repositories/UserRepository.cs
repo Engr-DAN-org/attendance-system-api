@@ -67,6 +67,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
     public async Task<User> FindByIdAsync(string id)
     {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         return await _context.Users
             .Include(u => u.Guardian)
             .Include(u => u.ClassSessions)
@@ -74,8 +75,11 @@ public class UserRepository(AppDbContext context) : IUserRepository
                 .ThenInclude(st => st.ClassSchedules)
             .Include(u => u.SubjectTeachers)
                 .ThenInclude(st => st.Subject)
+            .Include(u => u.Section)
+                .ThenInclude(s => s.ClassSchedules)
             .FirstOrDefaultAsync(u => u.Id == id)
             ?? throw new NotFoundException(nameof(User));
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 
     public async Task<User> FindBySchoolIdNoAsync(string schoolId)

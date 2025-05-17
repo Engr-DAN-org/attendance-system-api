@@ -94,7 +94,8 @@ namespace api.Repositories
         {
             var query = _context.ClassSessions.Where(x => x.ClassScheduleId == classScheduleId)
                 .AsQueryable()
-                .Include(x => x.AttendanceRecords);
+                .Include(x => x.AttendanceRecords)
+                .OrderByDescending(x => x.StartTime);
 
             return await query.ToListAsync();
         }
