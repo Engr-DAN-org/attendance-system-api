@@ -10,7 +10,7 @@ namespace api.Interfaces.Service
     public interface IStudentService
     {
         public Task<GetStudentDTO?> GetStudentByIdAsync(string id);
-        public Task<AttendanceRecord> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO);
+        public Task<GetAttendanceRecordDTO> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO);
         public Task<List<GetAttendanceRecordDTO>> GetAttendanceRecordsAsync(string studentId);
         public Task<AttendanceRecord> FindBySessionIdAsync(string studentId, string classSessionId);
 

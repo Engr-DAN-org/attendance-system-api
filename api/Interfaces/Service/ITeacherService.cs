@@ -14,6 +14,8 @@ namespace api.Interfaces.Service
 
         Task<List<GetClassSessionDTO>> GetSesssionsByScheduleIdAsync(int scheduleId);
         Task<GetClassSessionDTO> GetClassSessionByIdAsync(string sessionId);
+
+        Task<GetClassSessionDTO?> FindOngoingSessionByTeacherId(string teacherId);
         Task<ClassSession> StartClassSessionAsync(string teacherId, CreateClassSessionDTO dto);
         Task<ClassSession> EndClassSessionAsync(string teacherId, string sessionId);
         Task<ClassSession> CancelClassSessionAsync(string teacherId, string sessionId);

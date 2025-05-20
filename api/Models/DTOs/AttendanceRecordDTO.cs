@@ -27,10 +27,11 @@ namespace api.Models.DTOs
         public required AttendanceStatus Status { get; set; }
     }
 
-    public class GetAttendanceRecordDTO(AttendanceRecord attendanceRecord, bool? includeStudentData = true)
+    public class GetAttendanceRecordDTO(AttendanceRecord attendanceRecord, bool? includeStudentData = true, bool? includeClassSessionData = true)
     {
         public string Id { get; set; } = attendanceRecord.Id;
         public string ClassSessionId { get; set; } = attendanceRecord.ClassSessionId;
+        public int? ClassScheduleId { get; set; } = attendanceRecord.ClassSession?.ClassScheduleId;
         public string StudentId { get; set; } = attendanceRecord.StudentId;
         public AttendanceStatus Status { get; set; } = attendanceRecord.Status;
         public string? Location { get; set; } = attendanceRecord.Location;
@@ -41,9 +42,19 @@ namespace api.Models.DTOs
         public string StudentName = attendanceRecord.StudentName;
         public DateTime CreatedAt { get; set; } = attendanceRecord.CreatedAt;
         public AuthUserDTO? Student { get; set; } = includeStudentData == true && attendanceRecord.Student != null ? new AuthUserDTO(attendanceRecord.Student, false) : null;
+        public GetClassSessionDTO? ClassSession { get; set; } = includeClassSessionData == true && attendanceRecord.ClassSession != null ? new GetClassSessionDTO(attendanceRecord.ClassSession, false) : null;
+
     }
 
     public class AttendanceRecordQueryDTO : BaseQueryDTO<GetAttendanceRecordDTO>
     {
+        public AttendanceRecordQueryDTO(int totalCount, int totalPages, int page, int pageSize, List<AttendanceRecord> data)
+        {
+            TotalCount = totalCount;
+            TotalPages = totalPages;
+            Page = page;
+            PageSize = pageSize;
+            Data = [.. data.Select(record => new GetAttendanceRecordDTO(record))];
+        }
     }
 }

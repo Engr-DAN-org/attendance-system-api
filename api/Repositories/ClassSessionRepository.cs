@@ -135,5 +135,18 @@ namespace api.Repositories
         {
             await _context.Database.RollbackTransactionAsync();
         }
+
+        public async Task<ClassSession?> GetOngoingSessionByTeacherIdAsync(string teaacherId)
+        {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            return await _context.ClassSessions
+                   .AsQueryable()
+                   .Include(x => x.ClassSchedule)
+                       .ThenInclude(x => x.SubjectTeacher)
+                   .Include(x => x.AttendanceRecords)
+                   .Where(x => x.ClassSchedule.SubjectTeacher.TeacherId == teaacherId && x.Status == ClassSessionStatus.Started)
+                   .FirstOrDefaultAsync();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+        }
     }
 }

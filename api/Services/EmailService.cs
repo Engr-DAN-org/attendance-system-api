@@ -12,7 +12,7 @@ namespace api.Services
     {
         private readonly EmailSettings _smtpSettings = smtpSettings.Value;
 
-        public async Task SendAttendanceConfirmationEmailAsync(User student)
+        public async Task SendAttendanceConfirmationEmailAsync(User student, SubjectTeacher? stData)
         {
             var DateTime = DateTimeUtils.DateTimeNowFormattedString();
             if (student.Email != null)
@@ -21,6 +21,9 @@ namespace api.Services
                 var body = $@"
                             <p>Hello <strong>{student.FirstName}</strong>,</p>
                             <p>This is to confirm that you have successfully joined the class on <strong>{DateTime}</strong>.</p>
+                            <p>Subject: <strong>{stData!.Subject!.Code} - {stData!.Subject!.Name}</strong></p>
+                            <p>Teacher: <strong>{stData.Teacher!.FullName}</strong></p>
+                            <br>
                             <p>Keep up the great attendance!</p>
                             <br>
                         ";
@@ -32,6 +35,9 @@ namespace api.Services
                 var body = $@"
                             <p>Hello <strong>{student.Guardian.FirstName}</strong>,</p>
                             <p>This is to inform you that <strong>{student.FirstName}</strong> has successfully joined the class on <strong>{DateTime}</strong>.</p>
+                            <p>Subject: <strong>{stData!.Subject!.Code} - {stData!.Subject!.Name}</strong></p> 
+                            <p>Teacher: <strong>{stData.Teacher!.FullName}</strong></p>
+                            <br>
                             <p>Thank you for staying involved in their academic journey.</p>
                             <br>
                             ";

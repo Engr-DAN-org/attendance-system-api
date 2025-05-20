@@ -6,7 +6,7 @@ using api.Models.Entities;
 
 namespace api.Models.DTOs
 {
-    public class GetClassScheduleDTO(ClassSchedule classSchedule, bool includesRelation = true)
+    public class GetClassScheduleDTO(ClassSchedule classSchedule, bool? includesRelation = true)
     {
         public int Id { get; set; } = classSchedule.Id;
         public int Day { get; set; } = (int)classSchedule.Day;
@@ -18,10 +18,10 @@ namespace api.Models.DTOs
         public int? SectionId { get; set; } = classSchedule.SectionId;
         public int SubjectTeacherId { get; set; } = classSchedule.SubjectTeacherId;
 
-        public GetSectionDTO? Section { get; set; } = includesRelation && classSchedule.Section != null ? new GetSectionDTO(classSchedule.Section, false) : null;
-        public GetSubjectDTO? Subject { get; set; } = includesRelation && classSchedule.Subject != null ? new GetSubjectDTO(classSchedule.Subject, false) : null;
-        public GetTeacherDTO? Teacher { get; set; } = includesRelation && classSchedule.Teacher != null ? new GetTeacherDTO(classSchedule.Teacher, false) : null;
-        public List<GetClassSessionDTO> ClassSessions { get; set; } = includesRelation ? [.. classSchedule.ClassSessions.Select(cs => new GetClassSessionDTO(cs))] : [];
+        public GetSectionDTO? Section { get; set; } = includesRelation == true && classSchedule.Section != null ? new GetSectionDTO(classSchedule.Section, false) : null;
+        public GetSubjectDTO? Subject { get; set; } = includesRelation == true && classSchedule.Subject != null ? new GetSubjectDTO(classSchedule.Subject, false) : null;
+        public GetTeacherDTO? Teacher { get; set; } = includesRelation == true && classSchedule.Teacher != null ? new GetTeacherDTO(classSchedule.Teacher, false) : null;
+        public List<GetClassSessionDTO> ClassSessions { get; set; } = includesRelation == true ? [.. classSchedule.ClassSessions.Select(cs => new GetClassSessionDTO(cs))] : [];
 
         // Direct Properties from Relations
         public string? TeacherName => Teacher?.FullName;

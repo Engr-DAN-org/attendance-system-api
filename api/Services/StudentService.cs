@@ -39,7 +39,7 @@ namespace api.Services
             return student?.UserRole == UserRole.Student ? new GetStudentDTO(student) : null;
         }
 
-        public async Task<AttendanceRecord> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO)
+        public async Task<GetAttendanceRecordDTO> LogAttendanceAsync(string studentId, LogAttendanceRecordDTO attendanceDTO)
         {
             try
             {
@@ -47,14 +47,15 @@ namespace api.Services
                 if (student == null || student.UserRole != UserRole.Student)
                     throw new NotFoundException(nameof(User));
 
-                var classSession = await _sessionRepository.GetByIdAsync(attendanceDTO.ClassSessionId, false);
+                var classSession = await _sessionRepository.GetByIdAsync(attendanceDTO.ClassSessionId, true);
 
                 if (classSession.Status == ClassSessionStatus.Ended)
                     throw new InvalidOperationException("You may be too late. Please contact your teacher.");
                 if (classSession.Status == ClassSessionStatus.Canceled)
                     throw new InvalidOperationException("Class has been canceled. Cannot continue.");
 
-                return await _recordRepository.LogAttendanceAsync(studentId, classSession, attendanceDTO);
+                var attendanceRecord = await _recordRepository.LogAttendanceAsync(studentId, classSession, attendanceDTO);
+                return new GetAttendanceRecordDTO(attendanceRecord, false, true);
             }
             catch (System.Exception)
             {

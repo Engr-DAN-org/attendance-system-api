@@ -28,7 +28,7 @@ namespace api.Models.DTOs
             };
         }
     }
-    public class GetClassSessionDTO(ClassSession classSession)
+    public class GetClassSessionDTO(ClassSession classSession, bool? includeAttendanceRecords = true)
     {
         public string Id { get; set; } = classSession.Id;
         public ClassSessionStatus Status { get; set; } = classSession.Status;
@@ -41,6 +41,6 @@ namespace api.Models.DTOs
         public DateTime StartTime { get; set; } = classSession.StartTime;
         public DateTime? EndTime { get; set; } = classSession.EndTime;
         public DateTime CreatedAt { get; set; } = classSession.CreatedAt;
-        public List<GetAttendanceRecordDTO> AttendanceRecords { get; set; } = [.. classSession.AttendanceRecords.Select(x => new GetAttendanceRecordDTO(x))];
+        public List<GetAttendanceRecordDTO>? AttendanceRecords { get; set; } = includeAttendanceRecords == true ? [.. classSession.AttendanceRecords.Select(x => new GetAttendanceRecordDTO(x))] : null;
     }
 }

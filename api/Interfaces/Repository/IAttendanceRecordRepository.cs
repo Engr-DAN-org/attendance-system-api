@@ -17,6 +17,7 @@ namespace api.Interfaces.Repository
         Task<AttendanceRecord> LogAttendanceAsync(string studentId, ClassSession classSession, LogAttendanceRecordDTO recordDTO);
 
         Task<List<GetAttendanceRecordDTO>> QueryAsync(AttendanceRecordQueryParams queryParams);
+        Task<AttendanceRecordQueryDTO> GetStudentAttendanceRecordsAsync(string studentId, AttendanceRecordQueryParams queryParams);
         Task<List<AttendanceRecord>> GetListByClassSessionIdAsync(string classSessionId);
         Task<List<AttendanceRecord>> GetListByStudentIdAsync(string studentId);
         Task FinalizeAsAbsentAsync(AttendanceRecord attendanceRecord);

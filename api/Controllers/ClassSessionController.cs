@@ -13,7 +13,6 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "RequireTeacherOrAdmin")]
 
     public class ClassSessionController(ITeacherService teacherService, IStudentService studentService) : ControllerBase
     {
@@ -21,6 +20,8 @@ namespace api.Controllers
         private readonly IStudentService _studentService = studentService;
 
         [HttpGet("class-schedule/{scheduleId}")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+
         public async Task<IActionResult> GetClassSessionsByScheduleId(int scheduleId)
         {
             try
@@ -47,6 +48,7 @@ namespace api.Controllers
         }
 
         [HttpGet("{sessionId}")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
         public async Task<IActionResult> GetClassSession(string sessionId)
         {
             try
@@ -72,15 +74,39 @@ namespace api.Controllers
             }
         }
 
+
+        [HttpGet("ongoing")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+        public async Task<IActionResult> FindOngoingSession()
+        {
+            try
+            {
+                var teacherId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(teacherId))
+                    return Unauthorized();
+
+                var classSession = await _teacherService.FindOngoingSessionByTeacherId(teacherId);
+                return Ok(classSession);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
         [HttpGet("{sessionId}/attendance-record")]
         [Authorize(Policy = "RequireStudent")]
         public async Task<IActionResult> GetAttendanceRecord(string sessionId)
         {
             try
             {
-                var studentId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var studentId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-                var attendanceRecords = await _studentService.GetAttendanceRecordBySessionIdAsync(studentId!, sessionId);
+                var attendanceRecords = await _studentService.GetAttendanceRecordBySessionIdAsync(studentId, sessionId);
                 return Ok(attendanceRecords);
             }
             catch (NotFoundException e)
@@ -98,6 +124,8 @@ namespace api.Controllers
         }
 
         [HttpPost("start")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+
         public async Task<IActionResult> StartClassSession([FromBody] CreateClassSessionDTO dto)
         {
             try
@@ -124,6 +152,8 @@ namespace api.Controllers
         }
 
         [HttpPost("end/{id}")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+
         public async Task<IActionResult> EndClassSession(string id)
         {
             try
@@ -142,6 +172,8 @@ namespace api.Controllers
         }
 
         [HttpPost("cancel/{id}")]
+        [Authorize(Policy = "RequireTeacherOrAdmin")]
+
         public async Task<IActionResult> CancelClassSession(string id)
         {
             try

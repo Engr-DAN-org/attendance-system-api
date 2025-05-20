@@ -162,5 +162,15 @@ namespace api.Services
             var classSessions = await _sessionRepository.GetListByClassScheduleIdAsync(scheduleId);
             return [.. classSessions.Select(x => new GetClassSessionDTO(x))];
         }
+
+        public async Task<GetClassSessionDTO?> FindOngoingSessionByTeacherId(string teacherId)
+        {
+            var ongoing = await _sessionRepository.GetOngoingSessionByTeacherIdAsync(teacherId);
+
+            if (ongoing == null) return null;
+
+            return new GetClassSessionDTO(ongoing);
+
+        }
     }
 }

@@ -87,6 +87,33 @@ namespace api.Controllers
             }
         }
 
+        [HttpGet("student-history")]
+        [Authorize(Policy = "RequireStudent")]
+        public async Task<IActionResult> GetStudentAttendanceRecords([FromQuery] AttendanceRecordQueryParams queryParams)
+        {
+            try
+            {
+                var studentId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(studentId))
+                    return Unauthorized();
+
+                var records = await _recordRepository.GetStudentAttendanceRecordsAsync(studentId, queryParams);
+                return Ok(records);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
+            }
+        }
+
         [HttpPost("override")]
         [Authorize(Policy = "RequireTeacherOrAdmin")]
         public async Task<IActionResult> OverrideAttendanceRecord([FromBody] OverrideAttendanceRecordDTO dto)

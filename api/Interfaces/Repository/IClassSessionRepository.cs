@@ -14,7 +14,7 @@ namespace api.Interfaces.Repository
         Task<List<ClassSession>> GetListByClassScheduleIdAsync(int classScheduleId);
         Task<ClassSession> EndClassSessionAsync(string id);
         Task<ClassSession> CancelClassSessionAsync(string id);
-
+        Task<ClassSession?> GetOngoingSessionByTeacherIdAsync(string teaacherId);
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
