@@ -42,7 +42,11 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
                 return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidCredentials };
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
-            await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
+
+            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
+            }
 
             await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email };
