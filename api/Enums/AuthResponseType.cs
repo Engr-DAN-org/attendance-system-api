@@ -13,6 +13,7 @@ namespace api.Enums
         InvalidOTP,
         ExpiredOTP,
         Success,
+        PasswordResetSuccess,
     }
 
     public static class AuthResponseMessages
@@ -25,7 +26,8 @@ namespace api.Enums
             { AuthResponseType.InvalidOTP, "The OTP entered is invalid." },
             { AuthResponseType.ExpiredOTP, "The OTP has expired. Redirecting to the Login Page." },
             { AuthResponseType.OTPSent, "An OTP has been sent to your email." },
-            { AuthResponseType.Success, "Logged in successfully." }
+            { AuthResponseType.Success, "Logged in successfully." },
+            { AuthResponseType.PasswordResetSuccess, "Password reset successfully. You can now log in with your new password." }
         };
 
         public static string GetMessage(AuthResponseType type)
@@ -45,6 +47,7 @@ namespace api.Enums
             { AuthResponseType.ExpiredOTP, 410 },          // Gone (OTP is no longer valid)
             { AuthResponseType.OTPSent, 200 },             // OK
             { AuthResponseType.Success, 200 },             // OK
+            { AuthResponseType.PasswordResetSuccess, 200 } // OK
         };
 
         public static int GetStatus(AuthResponseType type)

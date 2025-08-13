@@ -11,6 +11,15 @@ public class LoginDTO
     public required string Password { get; set; }
 }
 
+public class Resend2FACodeDTO
+{
+    public required string Email { get; set; }
+}
+
+public class ForgotPasswordDTO : Resend2FACodeDTO
+{
+}
+
 public class VerifyEmailDTO
 {
     public required string Id { get; set; }
@@ -22,6 +31,10 @@ public class TwoFactorRequestDTO
 {
     public required string Email { get; set; }
     public required string Code { get; set; }
+}
+
+public class PasswordResetRequestDTO : TwoFactorRequestDTO
+{
 }
 
 public class TwoFactorResponseDTO
@@ -43,3 +56,8 @@ public class AuthResponseDTO
 }
 
 
+public class ChangePasswordDTO
+{
+    public required string OldPassword { get; set; }
+    public required string NewPassword { get; set; }
+}

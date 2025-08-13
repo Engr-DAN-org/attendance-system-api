@@ -123,13 +123,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasMany(cs => cs.AttendanceRecords)
             .WithOne(ar => ar.ClassSession)
             .HasForeignKey(ar => ar.ClassSessionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(ar => ar.ClassSession)
             .WithMany(cs => cs.AttendanceRecords)
             .HasForeignKey(ar => ar.ClassSessionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(ar => ar.Student)

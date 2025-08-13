@@ -6,7 +6,8 @@ namespace api.Interfaces.Service;
 public interface IEmailService
 {
     Task SendOTPEmailAsync(string toEmail, string body);
-
+    Task SendForgotPasswordOTPAsync(string toEmail, string code);
+    Task SendPasswordResetEmailAsync(string toEmail, string newPassword);
     Task SendAttendanceConfirmationEmailAsync(User student, SubjectTeacher? stData);
     Task SendRegistrationCredentialsAsync(User user, string password);
 

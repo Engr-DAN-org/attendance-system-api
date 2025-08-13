@@ -16,14 +16,23 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
     private readonly ITwoFactorRepository _twoFactorRepository = twoFactorRepository ?? throw new ArgumentNullException(nameof(twoFactorRepository));
     private readonly IEmailService _emailService = emailService ?? throw new ArgumentNullException(nameof(twoFactorRepository));
 
-    public Task<string> ChangePasswordAsync(string email, string password, string newPassword)
+    public async Task<string> ChangePasswordAsync(string id, string password, string newPassword)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            var user = _userRepository.FindByIdAsync(id).Result ?? throw new NotFoundException("User");
 
-    public Task<string> ForgotPasswordAsync(string email)
-    {
-        throw new NotImplementedException();
+            if (!CredentialUtils.VerifyPassword(password, user.PasswordHash!))
+                throw new NotSupportedException("Current password is incorrect.");
+
+            user.PasswordHash = CredentialUtils.HashPassword(newPassword);
+            var updatedUser = await _userRepository.UpdateUserAsync(user);
+            return updatedUser.Id;
+        }
+        catch (System.Exception)
+        {
+            throw;
+        }
     }
 
     public async Task<TwoFactorResponseDTO> LoginAsync(LoginDTO loginDTO)
@@ -52,6 +61,98 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             return new TwoFactorResponseDTO { Email = user.Email };
         }
         catch (Exception)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    public async Task<TwoFactorResponseDTO> Resend2FAuthAsync(Resend2FACodeDTO resend2FACodeDTO)
+    {
+        try
+        {
+            await _context.Database.BeginTransactionAsync();
+            var user = await _userRepository.FindByEmailOrIdNoAsync(resend2FACodeDTO.Email);
+
+            if (string.IsNullOrEmpty(user.Email))
+                throw new ArgumentException("User Email required for Two-Factor Authentication is not set. Please contact the Administrator.");
+
+            var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
+
+            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
+            }
+
+            await _context.Database.CommitTransactionAsync();
+            return new TwoFactorResponseDTO { Email = user.Email };
+        }
+        catch (System.Exception)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    public async Task<TwoFactorResponseDTO> ForgotPasswordAsync(ForgotPasswordDTO forgotPasswordDTO)
+    {
+        try
+        {
+            await _context.Database.BeginTransactionAsync();
+
+            var user = await _userRepository.FindByEmailOrIdNoAsync(forgotPasswordDTO.Email);
+
+            if (string.IsNullOrEmpty(user.Email))
+                throw new ArgumentException("User Email required for Two-Factor Authentication is not set. Please contact the Administrator.");
+
+            var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
+
+            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                await _emailService.SendForgotPasswordOTPAsync(user.Email, twoFactorEntry.Code);
+            }
+
+            await _context.Database.CommitTransactionAsync();
+            return new TwoFactorResponseDTO { Email = user.Email };
+
+        }
+        catch (System.Exception)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    public async Task<TwoFactorResponseDTO> ResetPasswordAsync(PasswordResetRequestDTO resetRequestDTO)
+    {
+        try
+        {
+            await _context.Database.BeginTransactionAsync();
+
+            var twoFactorEntry = await _twoFactorRepository.FindByEmailAsync(resetRequestDTO.Email);
+            var user = await _userRepository.FindByEmailOrIdNoAsync(resetRequestDTO.Email);
+
+            if (twoFactorEntry == null || user == null)
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.Error };
+            if (twoFactorEntry.Code != resetRequestDTO.Code)
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.InvalidOTP };
+            if (twoFactorEntry.IsExpired)
+                return new TwoFactorResponseDTO { ResponseType = AuthResponseType.ExpiredOTP };
+
+            string password = RandomCharGenerator.GenerateRandomPassword();
+
+            user.PasswordHash = CredentialUtils.HashPassword(password);
+            await _context.SaveChangesAsync();
+
+            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                await _emailService.SendPasswordResetEmailAsync(user.Email!, password);
+            }
+
+            await _context.Database.CommitTransactionAsync();
+            return new TwoFactorResponseDTO { Email = user.Email, ResponseType = AuthResponseType.PasswordResetSuccess };
+        }
+        catch (System.Exception)
         {
             await _context.Database.RollbackTransactionAsync();
             throw;
@@ -105,10 +206,6 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
         throw new NotImplementedException();
     }
 
-    public Task<string> ResetPasswordAsync(string email, string token, string password)
-    {
-        throw new NotImplementedException();
-    }
 
     // public async Task<AuthResponseDTO> VerifyEmailAsync(VerifyEmailDTO verifyEmailDTO)
     // {
@@ -147,4 +244,5 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
         return new GetProfileDTO(user);
     }
+
 }

@@ -184,13 +184,48 @@ namespace api.Services
             await SendEmailAsync([toEmail], subject, body);
         }
 
-        public async Task SendPasswordResetEmailAsync(string toEmail, string subject, string body)
+        public async Task SendPasswordResetEmailAsync(string toEmail, string newPassword)
         {
+            var subject = "Password Reset Successful";
+            var body = $@"
+                <p>Hello,</p>
+                <p>Your password has been reset successfully.</p>
+                <p><strong>New Password:</strong></p>
+                <p style='font-size:1.5em; font-weight:bold; color:#007bff;'>{newPassword}</p>
+                <p>Please use this password to log in to your account. For your security, we strongly recommend changing your password after logging in.</p>
+                <br />
+                <p>If you did not request this password reset, please contact our support team immediately.</p>
+            ";
+
+            await SendEmailAsync([toEmail], subject, body);
+        }
+
+        public async Task SendForgotPasswordOTPAsync(string toEmail, string code)
+        {
+            var subject = "Forgot Password OTP Verification";
+
+            var body = $@"
+                <p>Hello,</p>
+                <p>You requested to reset your password. Please use the One-Time Password (OTP) below to proceed:</p>
+                <p style='font-size:1.5em; font-weight:bold; color:#007bff;'>{code}</p>
+                <p>This OTP is valid for a limited time and should not be shared with anyone.</p>
+                <br />
+                <p>If you did not request a password reset, please ignore this email or contact support.</p>
+            ";
+
             await SendEmailAsync([toEmail], subject, body);
         }
 
         private async Task SendEmailAsync(List<string> toEmails, string subject, string body)
         {
+            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                // In development, we can log the email instead of sending it
+                Console.WriteLine($"Email to: {string.Join(", ", toEmails)}");
+                Console.WriteLine($"Subject: {subject}");
+                Console.WriteLine($"Body: {body}");
+                return;
+            }
             try
             {
                 using var smtpClient = new SmtpClient(_smtpSettings.Server, _smtpSettings.Port);
