@@ -11,10 +11,11 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SubjectTeacherController(ISubjectTeacherRepository repository) : ControllerBase
+    public class SubjectTeacherController(ISubjectTeacherRepository repository, ILogger<SubjectTeacherController> logger) : ControllerBase
     {
 
         private readonly ISubjectTeacherRepository _subjectRepository = repository;
+        private readonly ILogger<SubjectTeacherController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> GetSubjectTeachers([FromQuery] SubjectTeacherQueryParams queryParams)
@@ -26,6 +27,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Subject Teachers Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -44,6 +46,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Subject Teacher by Id Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }

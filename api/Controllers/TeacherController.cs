@@ -12,9 +12,10 @@ namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TeacherController(ITeacherService teacherService) : ControllerBase
+    public class TeacherController(ITeacherService teacherService, ILogger<TeacherController> logger) : ControllerBase
     {
         private readonly ITeacherService _teacherService = teacherService;
+        private readonly ILogger<TeacherController> _logger = logger;
 
         [HttpGet("class-schedules")]
         [Authorize(Policy = "RequireTeacherOrAdmin")]
@@ -31,7 +32,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
-
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Schedules Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -61,6 +62,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Schedule by Id Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -88,6 +90,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Override Attendance Record Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }

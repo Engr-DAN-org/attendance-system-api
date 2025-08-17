@@ -13,9 +13,10 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ClassScheduleController(IClassScheduleRepository repository) : ControllerBase
+    public class ClassScheduleController(IClassScheduleRepository repository, ILogger<ClassScheduleController> logger) : ControllerBase
     {
         private readonly IClassScheduleRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        private readonly ILogger<ClassScheduleController> _logger = logger;
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateClassSchedule([FromBody] CreateClassScheduleDTO createClassScheduleDTO)
@@ -27,6 +28,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Create Class Schedule Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -45,6 +47,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Schedule Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -59,6 +62,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Query Class Schedules Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -77,6 +81,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Schedules by Section or Teacher Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -95,6 +100,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update Class Schedule Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -113,6 +119,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Delete Class Schedule Failed");
                 return StatusCode(500, e.Message);
             }
         }

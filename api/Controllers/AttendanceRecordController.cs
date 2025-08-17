@@ -16,12 +16,13 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AttendanceRecordController(IAttendanceRecordRepository recordRepository, ITeacherService teacherService, IStudentService studentService) : ControllerBase
+    public class AttendanceRecordController(IAttendanceRecordRepository recordRepository, ILogger<AttendanceRecordController> logger, ITeacherService teacherService, IStudentService studentService) : ControllerBase
     {
 
         private readonly IAttendanceRecordRepository _recordRepository = recordRepository;
         private readonly IStudentService _studentService = studentService;
         private readonly ITeacherService _teacherService = teacherService;
+        private readonly ILogger<AttendanceRecordController> _logger = logger;
 
         [HttpGet]
         [Authorize]
@@ -50,6 +51,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Login Attempt Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -83,6 +85,8 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Login Attempt Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -110,6 +114,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Login Attempt Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -138,6 +143,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Login Attempt Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }

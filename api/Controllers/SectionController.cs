@@ -13,9 +13,10 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SectionController(ISectionService sectionService) : ControllerBase
+    public class SectionController(ISectionService sectionService, ILogger<SectionController> logger) : ControllerBase
     {
         private readonly ISectionService _sectionService = sectionService;
+        private readonly ILogger<SectionController> _logger = logger;
 
         [HttpGet]
         // [Authorize(Policy = "RequireTeacherOrAdmin")]
@@ -28,6 +29,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Sections Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -47,6 +49,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Create Section Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -66,6 +69,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update Section Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -85,6 +89,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Section by Id Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -104,6 +109,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Delete Section Failed");
                 return StatusCode(500, e.Message);
             }
         }

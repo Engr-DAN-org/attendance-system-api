@@ -11,9 +11,10 @@ namespace api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     // [Authorize(Policy = "RequireAdmin")]
-    public class CourseController(ICourseRepository courseRepository) : ControllerBase
+    public class CourseController(ICourseRepository courseRepository, ILogger<CourseController> logger) : ControllerBase
     {
         private readonly ICourseRepository _courseRepository = courseRepository;
+        private readonly ILogger<CourseController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> GetCourses([FromQuery] CourseQuery courseQuery)
@@ -25,6 +26,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Courses Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -43,6 +45,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Course by Id Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -61,6 +64,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Create Course Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -79,6 +83,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update Course Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -97,6 +102,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update Course Icon Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -115,6 +121,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Delete Course Failed");
                 return StatusCode(500, e.Message);
             }
         }

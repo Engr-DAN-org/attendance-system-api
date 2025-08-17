@@ -14,10 +14,11 @@ namespace api.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class ClassSessionController(ITeacherService teacherService, IStudentService studentService) : ControllerBase
+    public class ClassSessionController(ITeacherService teacherService, IStudentService studentService, ILogger<ClassSessionController> logger) : ControllerBase
     {
         private readonly ITeacherService _teacherService = teacherService;
         private readonly IStudentService _studentService = studentService;
+        private readonly ILogger<ClassSessionController> _logger = logger;
 
         [HttpGet("class-schedule/{scheduleId}")]
         [Authorize(Policy = "RequireTeacherOrAdmin")]
@@ -43,6 +44,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Sessions by Schedule Id Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -70,6 +72,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Class Session by Id Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -94,6 +97,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Find Ongoing Session by Teacher Id Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -119,6 +123,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Attendance Record by Session Id Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -147,6 +152,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Start Class Session Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -167,6 +173,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "End Class Session Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }
@@ -187,6 +194,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Cancel Class Session Failed");
                 return StatusCode(500, new { message = "Something went wrong.", error = e.Message });
             }
         }

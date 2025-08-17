@@ -33,7 +33,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
-                _logger.LogError("Error: {Exception}", e);
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Create Subject Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -48,6 +48,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Query Subjects Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -67,6 +68,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Subject by Id Failed");
                 return StatusCode(500, new { message = e.Message });
 
             }
@@ -86,6 +88,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update Subject Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -105,6 +108,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Delete Subject Failed");
                 return StatusCode(500, new { message = e.Message });
 
             }

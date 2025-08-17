@@ -14,10 +14,11 @@ namespace api.Controllers
     [ApiController]
     [Authorize(Policy = "RequireStudent")]
 
-    public class StudentController(IStudentService studentService) : ControllerBase
+    public class StudentController(IStudentService studentService, ILogger<StudentController> logger) : ControllerBase
     {
 
         private readonly IStudentService _studentService = studentService ?? throw new ArgumentNullException(nameof(studentService));
+        private readonly ILogger<StudentController> _logger = logger;
 
         [HttpGet("section-data")]
         public async Task<IActionResult> GetSectionData()
@@ -44,6 +45,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Section Data Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -73,6 +75,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Attendance Records Failed");
                 return StatusCode(500, e.Message);
             }
 

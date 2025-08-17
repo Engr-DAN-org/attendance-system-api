@@ -12,10 +12,11 @@ namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController(IUserRepository userRepository, IUserService userService) : ControllerBase
+    public class UserController(IUserRepository userRepository, IUserService userService, ILogger<UserController> logger) : ControllerBase
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly IUserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        private readonly ILogger<UserController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> GetUsers([FromQuery] UsersQueryParams queryParams)
@@ -27,6 +28,7 @@ namespace api.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get Users Failed");
                 return StatusCode(500, e.Message);
             }
         }
@@ -47,7 +49,8 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
-                return StatusCode(500, e.Message);
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Create User Failed");
+                return StatusCode(500, new { message = e.Message });
             }
         }
 
@@ -68,6 +71,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Get User by Id Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -90,6 +94,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Update User Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -108,6 +113,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Delete User Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
@@ -128,6 +134,7 @@ namespace api.Controllers
             }
             catch (System.Exception e)
             {
+                _logger.LogError(new EventId(101, "DatabaseError"), e, "Initialize Email Verification Failed");
                 return StatusCode(500, new { message = e.Message });
             }
         }
