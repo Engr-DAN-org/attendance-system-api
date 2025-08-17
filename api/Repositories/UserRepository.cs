@@ -25,6 +25,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
             Email = user.Email,
             UserRole = user.UserRole,
             PhoneNumber = user.PhoneNumber,
+            SectionId = user.SectionId ?? null,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
         });
         await _context.SaveChangesAsync();
