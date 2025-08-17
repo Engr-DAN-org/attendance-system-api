@@ -82,7 +82,10 @@ namespace api.Services
                 var subject = classSession!.ClassSchedule!.SubjectTeacher!.Subject;
                 var students = targetRecords.Select(x => x.Student).ToList();
 
-                await _emailService.SendAbsentFromClassEmailAsync(students!, subject!.Code, classSession.StartTime);
+                if (students.Count > 0)
+                {
+                    await _emailService.SendAbsentFromClassEmailAsync(students!, subject!.Code, classSession.StartTime);
+                }
 
                 // Save changes to the database
                 await _sessionRepository.CommitTransactionAsync();
