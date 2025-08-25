@@ -98,7 +98,9 @@ namespace api.Repositories
             }
             if (!string.IsNullOrEmpty(queryParams.TeacherId))
             {
-                query = query.Where(cs => cs.SubjectTeacher != null && cs.SubjectTeacher.TeacherId == queryParams.TeacherId);
+                query = query.Where(cs => cs.SubjectTeacher != null
+                && cs.SectionId != null
+                 && cs.SubjectTeacher.TeacherId == queryParams.TeacherId);
             }
             return await query
                     .Include(cs => cs.Section)
