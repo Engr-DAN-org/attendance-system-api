@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Mail;
+using System.Text;
+using System.Text.Json;
 using api.Interfaces.Service;
 using api.Models.DTOs;
 using api.Models.Entities;
@@ -8,9 +10,11 @@ using Microsoft.Extensions.Options;
 
 namespace api.Services
 {
-    public class EmailService(IOptions<EmailSettings> smtpSettings) : IEmailService
+    public class EmailService(IOptions<EmailSettings> smtpSettings, HttpClient httpClient) : IEmailService
     {
         private readonly EmailSettings _smtpSettings = smtpSettings.Value;
+        private readonly HttpClient _httpClient = httpClient;
+
 
         public async Task SendAttendanceConfirmationEmailAsync(User student, SubjectTeacher? stData)
         {
@@ -216,43 +220,80 @@ namespace api.Services
             await SendEmailAsync([toEmail], subject, body);
         }
 
-        private async Task SendEmailAsync(List<string> toEmails, string subject, string body)
+        // private async Task SendEmailAsync(List<string> toEmails, string subject, string body)
+        // {
+        //     // if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") == "Development")
+        //     // {
+        //     //     // In development, we can log the email instead of sending it
+        //     //     Console.WriteLine($"Email to: {string.Join(", ", toEmails)}");
+        //     //     Console.WriteLine($"Subject: {subject}");
+        //     //     Console.WriteLine($"Body: {body}");
+        //     //     return;
+        //     // }
+        //     try
+        //     {
+        //         using var smtpClient = new SmtpClient(_smtpSettings.Server, _smtpSettings.Port);
+        //         smtpClient.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
+        //         smtpClient.EnableSsl = true;
+
+        //         var mailMessage = new MailMessage
+        //         {
+        //             From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName),
+        //             Subject = subject,
+        //             Body = body,
+        //             IsBodyHtml = true
+        //         };
+
+        //         foreach (var email in toEmails)
+        //         {
+        //             mailMessage.To.Add(email);
+        //         }
+
+        //         await smtpClient.SendMailAsync(mailMessage);
+        //     }
+        //     catch (Exception)
+        //     {
+        //         throw;
+        //     }
+        // }
+
+        private async Task SendEmailAsync(List<string> toEmails, string subject, string htmlContent)
         {
             if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 // In development, we can log the email instead of sending it
                 Console.WriteLine($"Email to: {string.Join(", ", toEmails)}");
                 Console.WriteLine($"Subject: {subject}");
-                Console.WriteLine($"Body: {body}");
+                Console.WriteLine($"Body: {htmlContent}");
                 return;
             }
             try
             {
-                using var smtpClient = new SmtpClient(_smtpSettings.Server, _smtpSettings.Port);
-                smtpClient.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
-                smtpClient.EnableSsl = true;
-
-                var mailMessage = new MailMessage
+                var payload = new
                 {
-                    From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true
+                    sender = new { name = _smtpSettings.SenderName, email = _smtpSettings.SenderEmail },
+                    to = toEmails.Select(email => new { email }).ToList(),
+                    subject,
+                    htmlContent
                 };
 
-                foreach (var email in toEmails)
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email")
                 {
-                    mailMessage.To.Add(email);
-                }
+                    Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
+                };
 
-                await smtpClient.SendMailAsync(mailMessage);
+                request.Headers.Add("api-key", _smtpSettings.APIKey);
+
+                var response = await _httpClient.SendAsync(request);
+                Console.WriteLine("Response:" + response.Content);
+
+                response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine("Email Sending Error: " + e.Message);
                 throw;
             }
         }
-
-
     }
 }

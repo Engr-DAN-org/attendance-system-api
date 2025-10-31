@@ -90,12 +90,16 @@ else
         option.SenderName = VariableParser.GetEnvString("SMTP_SENDER_NAME");
         option.Username = VariableParser.GetEnvString("SMTP_USERNAME");
         option.Password = VariableParser.GetEnvString("SMTP_PASSWORD");
+        option.APIKey = VariableParser.GetEnvString("BREVO_API_KEY");
     });
 }
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Register HttpClient for DI
+builder.Services.AddHttpClient();
 
 // Add controller service
 builder.Services.AddControllers()

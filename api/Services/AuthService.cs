@@ -52,10 +52,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
 
-            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
-            {
-                await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
-            }
+            await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
 
             await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email };
@@ -79,10 +76,8 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
 
-            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
-            {
-                await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
-            }
+
+            await _emailService.SendOTPEmailAsync(user.Email, twoFactorEntry.Message);
 
             await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email };
@@ -107,10 +102,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
 
             var twoFactorEntry = await _twoFactorRepository.CreateAsync(user.Email);
 
-            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
-            {
-                await _emailService.SendForgotPasswordOTPAsync(user.Email, twoFactorEntry.Code);
-            }
+            await _emailService.SendForgotPasswordOTPAsync(user.Email, twoFactorEntry.Code);
 
             await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email };
@@ -144,10 +136,7 @@ public class AuthService(AppDbContext context, IUserRepository userRepository, I
             user.PasswordHash = CredentialUtils.HashPassword(password);
             await _context.SaveChangesAsync();
 
-            if (VariableParser.GetEnvString("ASPNETCORE_ENVIRONMENT") != "Development")
-            {
-                await _emailService.SendPasswordResetEmailAsync(user.Email!, password);
-            }
+            await _emailService.SendPasswordResetEmailAsync(user.Email!, password);
 
             await _context.Database.CommitTransactionAsync();
             return new TwoFactorResponseDTO { Email = user.Email, ResponseType = AuthResponseType.PasswordResetSuccess };
